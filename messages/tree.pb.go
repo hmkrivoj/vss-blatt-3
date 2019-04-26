@@ -117,27 +117,124 @@ func (m *Insert) GetValue() string {
 	return ""
 }
 
+type Search struct {
+	Key int32 `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`
+}
+
+func (m *Search) Reset()      { *m = Search{} }
+func (*Search) ProtoMessage() {}
+func (*Search) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{2}
+}
+func (m *Search) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Search) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Search.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Search) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Search.Merge(m, src)
+}
+func (m *Search) XXX_Size() int {
+	return m.Size()
+}
+func (m *Search) XXX_DiscardUnknown() {
+	xxx_messageInfo_Search.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Search proto.InternalMessageInfo
+
+func (m *Search) GetKey() int32 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+type Found struct {
+	Key   int32 `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value int32 `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+func (m *Found) Reset()      { *m = Found{} }
+func (*Found) ProtoMessage() {}
+func (*Found) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{3}
+}
+func (m *Found) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Found) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Found.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Found) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Found.Merge(m, src)
+}
+func (m *Found) XXX_Size() int {
+	return m.Size()
+}
+func (m *Found) XXX_DiscardUnknown() {
+	xxx_messageInfo_Found.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Found proto.InternalMessageInfo
+
+func (m *Found) GetKey() int32 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+func (m *Found) GetValue() int32 {
+	if m != nil {
+		return m.Value
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Create)(nil), "messages.Create")
 	proto.RegisterType((*Insert)(nil), "messages.Insert")
+	proto.RegisterType((*Search)(nil), "messages.Search")
+	proto.RegisterType((*Found)(nil), "messages.Found")
 }
 
 func init() { proto.RegisterFile("tree.proto", fileDescriptor_cb3889276909882a) }
 
 var fileDescriptor_cb3889276909882a = []byte{
-	// 177 bytes of a gzipped FileDescriptorProto
+	// 203 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2a, 0x29, 0x4a, 0x4d,
 	0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xc8, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x2d,
 	0x56, 0x52, 0xe2, 0x62, 0x73, 0x2e, 0x4a, 0x4d, 0x2c, 0x49, 0x15, 0x92, 0xe0, 0x62, 0xcf, 0x4d,
 	0xac, 0x08, 0xce, 0xac, 0x4a, 0x95, 0x60, 0x54, 0x60, 0xd4, 0x60, 0x0d, 0x82, 0x71, 0x95, 0x0c,
 	0xb8, 0xd8, 0x3c, 0xf3, 0x8a, 0x53, 0x8b, 0x4a, 0x84, 0x04, 0xb8, 0x98, 0xb3, 0x53, 0x2b, 0xa1,
 	0xf2, 0x20, 0xa6, 0x90, 0x08, 0x17, 0x6b, 0x59, 0x62, 0x4e, 0x69, 0xaa, 0x04, 0x93, 0x02, 0xa3,
-	0x06, 0x67, 0x10, 0x84, 0xe3, 0x64, 0x72, 0xe1, 0xa1, 0x1c, 0xc3, 0x8d, 0x87, 0x72, 0x0c, 0x1f,
-	0x1e, 0xca, 0x31, 0x36, 0x3c, 0x92, 0x63, 0x5c, 0xf1, 0x48, 0x8e, 0xf1, 0xc4, 0x23, 0x39, 0xc6,
-	0x0b, 0x8f, 0xe4, 0x18, 0x1f, 0x3c, 0x92, 0x63, 0x7c, 0xf1, 0x48, 0x8e, 0xe1, 0xc3, 0x23, 0x39,
-	0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0x89, 0x0d,
-	0xec, 0x38, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x6f, 0x5e, 0x19, 0x9c, 0xaa, 0x00, 0x00,
-	0x00,
+	0x06, 0x67, 0x10, 0x84, 0xa3, 0x24, 0xc5, 0xc5, 0x16, 0x9c, 0x9a, 0x58, 0x94, 0x9c, 0x81, 0xa9,
+	0x43, 0x49, 0x9f, 0x8b, 0xd5, 0x2d, 0xbf, 0x34, 0x2f, 0x85, 0x90, 0x61, 0xac, 0x50, 0xc3, 0x9c,
+	0x4c, 0x2e, 0x3c, 0x94, 0x63, 0xb8, 0xf1, 0x50, 0x8e, 0xe1, 0xc3, 0x43, 0x39, 0xc6, 0x86, 0x47,
+	0x72, 0x8c, 0x2b, 0x1e, 0xc9, 0x31, 0x9e, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83,
+	0x47, 0x72, 0x8c, 0x2f, 0x1e, 0xc9, 0x31, 0x7c, 0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3,
+	0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x24, 0xb1, 0x81, 0x7d, 0x6a, 0x0c, 0x08, 0x00,
+	0x00, 0xff, 0xff, 0xc8, 0x5d, 0xdc, 0xfa, 0xf7, 0x00, 0x00, 0x00,
 }
 
 func (this *Create) Equal(that interface{}) bool {
@@ -191,6 +288,57 @@ func (this *Insert) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *Search) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Search)
+	if !ok {
+		that2, ok := that.(Search)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	return true
+}
+func (this *Found) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Found)
+	if !ok {
+		that2, ok := that.(Found)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	if this.Value != that1.Value {
+		return false
+	}
+	return true
+}
 func (this *Create) GoString() string {
 	if this == nil {
 		return "nil"
@@ -207,6 +355,27 @@ func (this *Insert) GoString() string {
 	}
 	s := make([]string, 0, 6)
 	s = append(s, "&messages.Insert{")
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "Value: "+fmt.Sprintf("%#v", this.Value)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *Search) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.Search{")
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *Found) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.Found{")
 	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
 	s = append(s, "Value: "+fmt.Sprintf("%#v", this.Value)+",\n")
 	s = append(s, "}")
@@ -272,6 +441,57 @@ func (m *Insert) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *Search) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Search) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Key != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	return i, nil
+}
+
+func (m *Found) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Found) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Key != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	if m.Value != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Value))
+	}
+	return i, nil
+}
+
 func encodeVarintTree(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -309,6 +529,33 @@ func (m *Insert) Size() (n int) {
 	return n
 }
 
+func (m *Search) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	return n
+}
+
+func (m *Found) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	if m.Value != 0 {
+		n += 1 + sovTree(uint64(m.Value))
+	}
+	return n
+}
+
 func sovTree(x uint64) (n int) {
 	for {
 		n++
@@ -337,6 +584,27 @@ func (this *Insert) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&Insert{`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`Value:` + fmt.Sprintf("%v", this.Value) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Search) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Search{`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Found) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Found{`,
 		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
 		`Value:` + fmt.Sprintf("%v", this.Value) + `,`,
 		`}`,
@@ -503,6 +771,169 @@ func (m *Insert) Unmarshal(dAtA []byte) error {
 			}
 			m.Value = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Search) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Search: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Search: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Found) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Found: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Found: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
+			}
+			m.Value = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Value |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])
