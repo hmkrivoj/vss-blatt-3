@@ -36,7 +36,14 @@ func (state *NodeActor) Receive(context actor.Context) {
 		}
 	case messages.Search:
 		if state.isLeaf {
-
+			value, ok := state.content[int(msg.Key)]
+			context.Respond(messages.Found{HasFound: ok, Key: msg.Key, Value: value})
+		} else {
+			if int(msg.Key) > state.maxLeftSideKey {
+				context.Forward(state.right)
+			} else {
+				context.Forward(state.left)
+			}
 		}
 	}
 	if state.isLeaf && len(state.content) > state.maxSize {

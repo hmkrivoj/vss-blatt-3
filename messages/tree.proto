@@ -4,4 +4,4 @@ package messages;
 message Create {int32 maxSize = 1;}
 message Insert {int32 key = 1; string value = 2;}
 message Search {int32 key = 1;}
-message Found {int32 key = 1; bool hasFound = 2; int32 value = 3;}
+message Found {int32 key = 1; bool hasFound = 2; string value = 3;}
