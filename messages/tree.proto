@@ -1,6 +1,5 @@
 syntax = "proto3";
 package messages;
 
-message HelloWorld {}
-
-message Create {int32 maxSize = 2;}
+message Create {int32 maxSize = 1;}
+message Insert {int32 key = 1; string value = 2;}
