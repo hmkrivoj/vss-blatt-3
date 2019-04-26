@@ -34,6 +34,10 @@ func (state *NodeActor) Receive(context actor.Context) {
 				context.Forward(state.left)
 			}
 		}
+	case messages.Search:
+		if state.isLeaf {
+
+		}
 	}
 	if state.isLeaf && len(state.content) > state.maxSize {
 		state.split(context)
