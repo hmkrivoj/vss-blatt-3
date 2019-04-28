@@ -14,9 +14,9 @@ message InitResponse {
     Credentials credentials = 1;
 }
 
-message InitChild {
+message InitNode {
     Credentials credentials = 1;
-    int64 maxsize = 2;
+    int64 maxSize = 2;
 }
 
 message InsertRequest {
