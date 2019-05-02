@@ -4,8 +4,10 @@
 package messages
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
 	io "io"
 	math "math"
 	reflect "reflect"
@@ -23,20 +25,22 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
-type HelloWorld struct {
+type Credentials struct {
+	Id    int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Token string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
 }
 
-func (m *HelloWorld) Reset()      { *m = HelloWorld{} }
-func (*HelloWorld) ProtoMessage() {}
-func (*HelloWorld) Descriptor() ([]byte, []int) {
+func (m *Credentials) Reset()      { *m = Credentials{} }
+func (*Credentials) ProtoMessage() {}
+func (*Credentials) Descriptor() ([]byte, []int) {
 	return fileDescriptor_cb3889276909882a, []int{0}
 }
-func (m *HelloWorld) XXX_Unmarshal(b []byte) error {
+func (m *Credentials) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *HelloWorld) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Credentials) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_HelloWorld.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Credentials.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalTo(b)
@@ -46,44 +50,545 @@ func (m *HelloWorld) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *HelloWorld) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HelloWorld.Merge(m, src)
+func (m *Credentials) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Credentials.Merge(m, src)
 }
-func (m *HelloWorld) XXX_Size() int {
+func (m *Credentials) XXX_Size() int {
 	return m.Size()
 }
-func (m *HelloWorld) XXX_DiscardUnknown() {
-	xxx_messageInfo_HelloWorld.DiscardUnknown(m)
+func (m *Credentials) XXX_DiscardUnknown() {
+	xxx_messageInfo_Credentials.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_HelloWorld proto.InternalMessageInfo
+var xxx_messageInfo_Credentials proto.InternalMessageInfo
+
+func (m *Credentials) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *Credentials) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
+type InitRequest struct {
+	MaxSize int64 `protobuf:"varint,1,opt,name=maxSize,proto3" json:"maxSize,omitempty"`
+}
+
+func (m *InitRequest) Reset()      { *m = InitRequest{} }
+func (*InitRequest) ProtoMessage() {}
+func (*InitRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{1}
+}
+func (m *InitRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InitRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InitRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InitRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitRequest.Merge(m, src)
+}
+func (m *InitRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *InitRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitRequest proto.InternalMessageInfo
+
+func (m *InitRequest) GetMaxSize() int64 {
+	if m != nil {
+		return m.MaxSize
+	}
+	return 0
+}
+
+type InitResponse struct {
+	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
+}
+
+func (m *InitResponse) Reset()      { *m = InitResponse{} }
+func (*InitResponse) ProtoMessage() {}
+func (*InitResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{2}
+}
+func (m *InitResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InitResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InitResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InitResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitResponse.Merge(m, src)
+}
+func (m *InitResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *InitResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitResponse proto.InternalMessageInfo
+
+func (m *InitResponse) GetCredentials() *Credentials {
+	if m != nil {
+		return m.Credentials
+	}
+	return nil
+}
+
+type InitNode struct {
+	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
+	MaxSize     int64        `protobuf:"varint,2,opt,name=maxSize,proto3" json:"maxSize,omitempty"`
+}
+
+func (m *InitNode) Reset()      { *m = InitNode{} }
+func (*InitNode) ProtoMessage() {}
+func (*InitNode) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{3}
+}
+func (m *InitNode) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InitNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InitNode.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InitNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitNode.Merge(m, src)
+}
+func (m *InitNode) XXX_Size() int {
+	return m.Size()
+}
+func (m *InitNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitNode.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitNode proto.InternalMessageInfo
+
+func (m *InitNode) GetCredentials() *Credentials {
+	if m != nil {
+		return m.Credentials
+	}
+	return nil
+}
+
+func (m *InitNode) GetMaxSize() int64 {
+	if m != nil {
+		return m.MaxSize
+	}
+	return 0
+}
+
+type InsertRequest struct {
+	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
+	Key         int64        `protobuf:"varint,2,opt,name=key,proto3" json:"key,omitempty"`
+	Value       string       `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+func (m *InsertRequest) Reset()      { *m = InsertRequest{} }
+func (*InsertRequest) ProtoMessage() {}
+func (*InsertRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{4}
+}
+func (m *InsertRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InsertRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InsertRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InsertRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InsertRequest.Merge(m, src)
+}
+func (m *InsertRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *InsertRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_InsertRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InsertRequest proto.InternalMessageInfo
+
+func (m *InsertRequest) GetCredentials() *Credentials {
+	if m != nil {
+		return m.Credentials
+	}
+	return nil
+}
+
+func (m *InsertRequest) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+func (m *InsertRequest) GetValue() string {
+	if m != nil {
+		return m.Value
+	}
+	return ""
+}
+
+type InsertResponse struct {
+	Key     int64 `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`
+	Success bool  `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+}
+
+func (m *InsertResponse) Reset()      { *m = InsertResponse{} }
+func (*InsertResponse) ProtoMessage() {}
+func (*InsertResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{5}
+}
+func (m *InsertResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InsertResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InsertResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InsertResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InsertResponse.Merge(m, src)
+}
+func (m *InsertResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *InsertResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_InsertResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InsertResponse proto.InternalMessageInfo
+
+func (m *InsertResponse) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+func (m *InsertResponse) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
+}
+
+type DeleteRequest struct {
+	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
+	Key         int64        `protobuf:"varint,2,opt,name=key,proto3" json:"key,omitempty"`
+}
+
+func (m *DeleteRequest) Reset()      { *m = DeleteRequest{} }
+func (*DeleteRequest) ProtoMessage() {}
+func (*DeleteRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{6}
+}
+func (m *DeleteRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DeleteRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DeleteRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DeleteRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteRequest.Merge(m, src)
+}
+func (m *DeleteRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *DeleteRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteRequest proto.InternalMessageInfo
+
+func (m *DeleteRequest) GetCredentials() *Credentials {
+	if m != nil {
+		return m.Credentials
+	}
+	return nil
+}
+
+func (m *DeleteRequest) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+type DeleteResponse struct {
+	Key     int64 `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`
+	Success bool  `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+}
+
+func (m *DeleteResponse) Reset()      { *m = DeleteResponse{} }
+func (*DeleteResponse) ProtoMessage() {}
+func (*DeleteResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{7}
+}
+func (m *DeleteResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DeleteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DeleteResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DeleteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteResponse.Merge(m, src)
+}
+func (m *DeleteResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *DeleteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteResponse proto.InternalMessageInfo
+
+func (m *DeleteResponse) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+func (m *DeleteResponse) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
+}
+
+type SearchRequest struct {
+	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
+	Key         int64        `protobuf:"varint,2,opt,name=key,proto3" json:"key,omitempty"`
+}
+
+func (m *SearchRequest) Reset()      { *m = SearchRequest{} }
+func (*SearchRequest) ProtoMessage() {}
+func (*SearchRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{8}
+}
+func (m *SearchRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SearchRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SearchRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SearchRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SearchRequest.Merge(m, src)
+}
+func (m *SearchRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *SearchRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SearchRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SearchRequest proto.InternalMessageInfo
+
+func (m *SearchRequest) GetCredentials() *Credentials {
+	if m != nil {
+		return m.Credentials
+	}
+	return nil
+}
+
+func (m *SearchRequest) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+type SearchResponse struct {
+	Key     int64  `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value   string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Success bool   `protobuf:"varint,3,opt,name=success,proto3" json:"success,omitempty"`
+}
+
+func (m *SearchResponse) Reset()      { *m = SearchResponse{} }
+func (*SearchResponse) ProtoMessage() {}
+func (*SearchResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{9}
+}
+func (m *SearchResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SearchResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SearchResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SearchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SearchResponse.Merge(m, src)
+}
+func (m *SearchResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *SearchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SearchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SearchResponse proto.InternalMessageInfo
+
+func (m *SearchResponse) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+func (m *SearchResponse) GetValue() string {
+	if m != nil {
+		return m.Value
+	}
+	return ""
+}
+
+func (m *SearchResponse) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
+}
 
 func init() {
-	proto.RegisterType((*HelloWorld)(nil), "messages.HelloWorld")
+	proto.RegisterType((*Credentials)(nil), "messages.Credentials")
+	proto.RegisterType((*InitRequest)(nil), "messages.InitRequest")
+	proto.RegisterType((*InitResponse)(nil), "messages.InitResponse")
+	proto.RegisterType((*InitNode)(nil), "messages.InitNode")
+	proto.RegisterType((*InsertRequest)(nil), "messages.InsertRequest")
+	proto.RegisterType((*InsertResponse)(nil), "messages.InsertResponse")
+	proto.RegisterType((*DeleteRequest)(nil), "messages.DeleteRequest")
+	proto.RegisterType((*DeleteResponse)(nil), "messages.DeleteResponse")
+	proto.RegisterType((*SearchRequest)(nil), "messages.SearchRequest")
+	proto.RegisterType((*SearchResponse)(nil), "messages.SearchResponse")
 }
 
 func init() { proto.RegisterFile("tree.proto", fileDescriptor_cb3889276909882a) }
 
 var fileDescriptor_cb3889276909882a = []byte{
-	// 122 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2a, 0x29, 0x4a, 0x4d,
-	0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xc8, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x2d,
-	0x56, 0xe2, 0xe1, 0xe2, 0xf2, 0x48, 0xcd, 0xc9, 0xc9, 0x0f, 0xcf, 0x2f, 0xca, 0x49, 0x71, 0x32,
-	0xb9, 0xf0, 0x50, 0x8e, 0xe1, 0xc6, 0x43, 0x39, 0x86, 0x0f, 0x0f, 0xe5, 0x18, 0x1b, 0x1e, 0xc9,
-	0x31, 0xae, 0x78, 0x24, 0xc7, 0x78, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e,
-	0xc9, 0x31, 0xbe, 0x78, 0x24, 0xc7, 0xf0, 0xe1, 0x91, 0x1c, 0xe3, 0x84, 0xc7, 0x72, 0x0c, 0x17,
-	0x1e, 0xcb, 0x31, 0xdc, 0x78, 0x2c, 0xc7, 0x90, 0xc4, 0x06, 0x36, 0xd4, 0x18, 0x10, 0x00, 0x00,
-	0xff, 0xff, 0x75, 0x7e, 0xae, 0x67, 0x62, 0x00, 0x00, 0x00,
+	// 424 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x94, 0xbf, 0x6f, 0xda, 0x40,
+	0x14, 0xc7, 0x7d, 0x76, 0x0b, 0xf4, 0xb9, 0xa0, 0xea, 0xd4, 0x1f, 0x16, 0xc3, 0x09, 0x79, 0x29,
+	0x13, 0x03, 0xb4, 0xea, 0x40, 0xa7, 0xb6, 0x52, 0xc5, 0x92, 0xc1, 0x64, 0x8a, 0x94, 0xc1, 0xb1,
+	0x9f, 0x92, 0x13, 0x60, 0x13, 0xdf, 0x81, 0x92, 0x4c, 0xf9, 0x13, 0xf2, 0x67, 0xe4, 0x4f, 0xc9,
+	0xc8, 0xc8, 0x18, 0xcc, 0x92, 0x91, 0x3d, 0x4b, 0x64, 0x63, 0xc3, 0x99, 0x28, 0x0b, 0x4a, 0x36,
+	0x3f, 0xfb, 0x7d, 0xbf, 0xf7, 0xb9, 0xef, 0x7b, 0x32, 0x80, 0x8c, 0x10, 0x5b, 0xe3, 0x28, 0x94,
+	0x21, 0xad, 0x8c, 0x50, 0x08, 0xf7, 0x14, 0x85, 0xdd, 0x01, 0xf3, 0x6f, 0x84, 0x3e, 0x06, 0x92,
+	0xbb, 0x43, 0x41, 0x6b, 0xa0, 0x73, 0xdf, 0x22, 0x0d, 0xd2, 0x34, 0x1c, 0x9d, 0xfb, 0xf4, 0x33,
+	0xbc, 0x97, 0xe1, 0x00, 0x03, 0x4b, 0x6f, 0x90, 0xe6, 0x07, 0x67, 0x5d, 0xd8, 0xdf, 0xc1, 0xec,
+	0x05, 0x5c, 0x3a, 0x78, 0x3e, 0x41, 0x21, 0xa9, 0x05, 0xe5, 0x91, 0x7b, 0xd1, 0xe7, 0x57, 0x98,
+	0x29, 0xf3, 0xd2, 0xfe, 0x0f, 0x1f, 0xd7, 0x8d, 0x62, 0x1c, 0x06, 0x02, 0xe9, 0x2f, 0x30, 0xbd,
+	0xed, 0x69, 0x69, 0xb7, 0xd9, 0xfe, 0xd2, 0xca, 0x69, 0x5a, 0x0a, 0x8a, 0xa3, 0x76, 0xda, 0xc7,
+	0x50, 0x49, 0x8c, 0x0e, 0x42, 0x7f, 0x7f, 0x13, 0x95, 0x53, 0x2f, 0x72, 0x8e, 0xa1, 0xda, 0x0b,
+	0x04, 0x46, 0x9b, 0x2b, 0xed, 0x7d, 0xc6, 0x27, 0x30, 0x06, 0x78, 0x99, 0xf9, 0x27, 0x8f, 0x49,
+	0x84, 0x53, 0x77, 0x38, 0x41, 0xcb, 0x58, 0x47, 0x98, 0x16, 0xf6, 0x6f, 0xa8, 0xe5, 0x27, 0x66,
+	0xd9, 0x64, 0x4a, 0xb2, 0x55, 0x5a, 0x50, 0x16, 0x13, 0xcf, 0x43, 0x21, 0x52, 0xbf, 0x8a, 0x93,
+	0x97, 0xf6, 0x11, 0x54, 0xff, 0xe1, 0x10, 0x25, 0xbe, 0x3e, 0x6f, 0x42, 0x96, 0x7b, 0xef, 0x47,
+	0xd6, 0x47, 0x37, 0xf2, 0xce, 0xde, 0x80, 0xcc, 0x81, 0x5a, 0xee, 0xfd, 0x22, 0xd9, 0x26, 0x6d,
+	0x5d, 0x49, 0x5b, 0xe5, 0x35, 0x0a, 0xbc, 0xed, 0x47, 0x02, 0xe6, 0x61, 0x84, 0xd8, 0xc7, 0x68,
+	0xca, 0x3d, 0xa4, 0x3f, 0xe1, 0x1d, 0x0f, 0xb8, 0xa4, 0x0a, 0xa1, 0xb2, 0xea, 0xf5, 0xaf, 0xbb,
+	0xaf, 0x33, 0x90, 0x2e, 0x94, 0x78, 0x3a, 0x4e, 0xfa, 0x4d, 0xed, 0x50, 0x56, 0xaa, 0x6e, 0x3d,
+	0xff, 0xb0, 0x15, 0x8b, 0xf4, 0x5e, 0xaa, 0xb8, 0x90, 0xa2, 0x2a, 0xde, 0x89, 0xa0, 0x0b, 0x25,
+	0x3f, 0x1d, 0x97, 0x2a, 0x2e, 0x2c, 0x87, 0x2a, 0x2e, 0x4e, 0xf6, 0xcf, 0x8f, 0xd9, 0x82, 0x69,
+	0xf3, 0x05, 0xd3, 0x56, 0x0b, 0x46, 0xae, 0x63, 0x46, 0x6e, 0x63, 0x46, 0xee, 0x62, 0x46, 0x66,
+	0x31, 0x23, 0xf7, 0x31, 0x23, 0x0f, 0x31, 0xd3, 0x56, 0x31, 0x23, 0x37, 0x4b, 0xa6, 0xcd, 0x96,
+	0x4c, 0x9b, 0x2f, 0x99, 0x76, 0x52, 0x4a, 0x7f, 0x22, 0x9d, 0xa7, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x5b, 0x40, 0x03, 0x10, 0x52, 0x04, 0x00, 0x00,
 }
 
-func (this *HelloWorld) Equal(that interface{}) bool {
+func (this *Credentials) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*HelloWorld)
+	that1, ok := that.(*Credentials)
 	if !ok {
-		that2, ok := that.(HelloWorld)
+		that2, ok := that.(Credentials)
 		if ok {
 			that1 = &that2
 		} else {
@@ -95,14 +600,374 @@ func (this *HelloWorld) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
+	if this.Id != that1.Id {
+		return false
+	}
+	if this.Token != that1.Token {
+		return false
+	}
 	return true
 }
-func (this *HelloWorld) GoString() string {
+func (this *InitRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*InitRequest)
+	if !ok {
+		that2, ok := that.(InitRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.MaxSize != that1.MaxSize {
+		return false
+	}
+	return true
+}
+func (this *InitResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*InitResponse)
+	if !ok {
+		that2, ok := that.(InitResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Credentials.Equal(that1.Credentials) {
+		return false
+	}
+	return true
+}
+func (this *InitNode) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*InitNode)
+	if !ok {
+		that2, ok := that.(InitNode)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Credentials.Equal(that1.Credentials) {
+		return false
+	}
+	if this.MaxSize != that1.MaxSize {
+		return false
+	}
+	return true
+}
+func (this *InsertRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*InsertRequest)
+	if !ok {
+		that2, ok := that.(InsertRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Credentials.Equal(that1.Credentials) {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	if this.Value != that1.Value {
+		return false
+	}
+	return true
+}
+func (this *InsertResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*InsertResponse)
+	if !ok {
+		that2, ok := that.(InsertResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	if this.Success != that1.Success {
+		return false
+	}
+	return true
+}
+func (this *DeleteRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*DeleteRequest)
+	if !ok {
+		that2, ok := that.(DeleteRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Credentials.Equal(that1.Credentials) {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	return true
+}
+func (this *DeleteResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*DeleteResponse)
+	if !ok {
+		that2, ok := that.(DeleteResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	if this.Success != that1.Success {
+		return false
+	}
+	return true
+}
+func (this *SearchRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SearchRequest)
+	if !ok {
+		that2, ok := that.(SearchRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Credentials.Equal(that1.Credentials) {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	return true
+}
+func (this *SearchResponse) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SearchResponse)
+	if !ok {
+		that2, ok := that.(SearchResponse)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	if this.Value != that1.Value {
+		return false
+	}
+	if this.Success != that1.Success {
+		return false
+	}
+	return true
+}
+func (this *Credentials) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 4)
-	s = append(s, "&messages.HelloWorld{")
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.Credentials{")
+	s = append(s, "Id: "+fmt.Sprintf("%#v", this.Id)+",\n")
+	s = append(s, "Token: "+fmt.Sprintf("%#v", this.Token)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *InitRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.InitRequest{")
+	s = append(s, "MaxSize: "+fmt.Sprintf("%#v", this.MaxSize)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *InitResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.InitResponse{")
+	if this.Credentials != nil {
+		s = append(s, "Credentials: "+fmt.Sprintf("%#v", this.Credentials)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *InitNode) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.InitNode{")
+	if this.Credentials != nil {
+		s = append(s, "Credentials: "+fmt.Sprintf("%#v", this.Credentials)+",\n")
+	}
+	s = append(s, "MaxSize: "+fmt.Sprintf("%#v", this.MaxSize)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *InsertRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 7)
+	s = append(s, "&messages.InsertRequest{")
+	if this.Credentials != nil {
+		s = append(s, "Credentials: "+fmt.Sprintf("%#v", this.Credentials)+",\n")
+	}
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "Value: "+fmt.Sprintf("%#v", this.Value)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *InsertResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.InsertResponse{")
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "Success: "+fmt.Sprintf("%#v", this.Success)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *DeleteRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.DeleteRequest{")
+	if this.Credentials != nil {
+		s = append(s, "Credentials: "+fmt.Sprintf("%#v", this.Credentials)+",\n")
+	}
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *DeleteResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.DeleteResponse{")
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "Success: "+fmt.Sprintf("%#v", this.Success)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *SearchRequest) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 6)
+	s = append(s, "&messages.SearchRequest{")
+	if this.Credentials != nil {
+		s = append(s, "Credentials: "+fmt.Sprintf("%#v", this.Credentials)+",\n")
+	}
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *SearchResponse) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 7)
+	s = append(s, "&messages.SearchResponse{")
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "Value: "+fmt.Sprintf("%#v", this.Value)+",\n")
+	s = append(s, "Success: "+fmt.Sprintf("%#v", this.Success)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -114,7 +979,179 @@ func valueToGoStringTree(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
-func (m *HelloWorld) Marshal() (dAtA []byte, err error) {
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// TreeServiceClient is the client API for TreeService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type TreeServiceClient interface {
+	Init(ctx context.Context, in *InitRequest, opts ...grpc.CallOption) (*InitResponse, error)
+	Insert(ctx context.Context, in *InsertRequest, opts ...grpc.CallOption) (*InsertResponse, error)
+	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+}
+
+type treeServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewTreeServiceClient(cc *grpc.ClientConn) TreeServiceClient {
+	return &treeServiceClient{cc}
+}
+
+func (c *treeServiceClient) Init(ctx context.Context, in *InitRequest, opts ...grpc.CallOption) (*InitResponse, error) {
+	out := new(InitResponse)
+	err := c.cc.Invoke(ctx, "/messages.TreeService/init", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *treeServiceClient) Insert(ctx context.Context, in *InsertRequest, opts ...grpc.CallOption) (*InsertResponse, error) {
+	out := new(InsertResponse)
+	err := c.cc.Invoke(ctx, "/messages.TreeService/insert", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *treeServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
+	out := new(SearchResponse)
+	err := c.cc.Invoke(ctx, "/messages.TreeService/search", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *treeServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
+	out := new(DeleteResponse)
+	err := c.cc.Invoke(ctx, "/messages.TreeService/delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TreeServiceServer is the server API for TreeService service.
+type TreeServiceServer interface {
+	Init(context.Context, *InitRequest) (*InitResponse, error)
+	Insert(context.Context, *InsertRequest) (*InsertResponse, error)
+	Search(context.Context, *SearchRequest) (*SearchResponse, error)
+	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
+}
+
+func RegisterTreeServiceServer(s *grpc.Server, srv TreeServiceServer) {
+	s.RegisterService(&_TreeService_serviceDesc, srv)
+}
+
+func _TreeService_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TreeServiceServer).Init(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/messages.TreeService/Init",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TreeServiceServer).Init(ctx, req.(*InitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TreeService_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TreeServiceServer).Insert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/messages.TreeService/Insert",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TreeServiceServer).Insert(ctx, req.(*InsertRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TreeService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TreeServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/messages.TreeService/Search",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TreeServiceServer).Search(ctx, req.(*SearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TreeService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TreeServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/messages.TreeService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TreeServiceServer).Delete(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _TreeService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "messages.TreeService",
+	HandlerType: (*TreeServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "init",
+			Handler:    _TreeService_Init_Handler,
+		},
+		{
+			MethodName: "insert",
+			Handler:    _TreeService_Insert_Handler,
+		},
+		{
+			MethodName: "search",
+			Handler:    _TreeService_Search_Handler,
+		},
+		{
+			MethodName: "delete",
+			Handler:    _TreeService_Delete_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "tree.proto",
+}
+
+func (m *Credentials) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalTo(dAtA)
@@ -124,11 +1161,316 @@ func (m *HelloWorld) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *HelloWorld) MarshalTo(dAtA []byte) (int, error) {
+func (m *Credentials) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
+	if m.Id != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Id))
+	}
+	if len(m.Token) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(len(m.Token)))
+		i += copy(dAtA[i:], m.Token)
+	}
+	return i, nil
+}
+
+func (m *InitRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InitRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.MaxSize != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.MaxSize))
+	}
+	return i, nil
+}
+
+func (m *InitResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InitResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
+		n1, err1 := m.Credentials.MarshalTo(dAtA[i:])
+		if err1 != nil {
+			return 0, err1
+		}
+		i += n1
+	}
+	return i, nil
+}
+
+func (m *InitNode) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InitNode) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
+		n2, err2 := m.Credentials.MarshalTo(dAtA[i:])
+		if err2 != nil {
+			return 0, err2
+		}
+		i += n2
+	}
+	if m.MaxSize != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.MaxSize))
+	}
+	return i, nil
+}
+
+func (m *InsertRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InsertRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
+		n3, err3 := m.Credentials.MarshalTo(dAtA[i:])
+		if err3 != nil {
+			return 0, err3
+		}
+		i += n3
+	}
+	if m.Key != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	if len(m.Value) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(len(m.Value)))
+		i += copy(dAtA[i:], m.Value)
+	}
+	return i, nil
+}
+
+func (m *InsertResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InsertResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Key != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	if m.Success {
+		dAtA[i] = 0x10
+		i++
+		if m.Success {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *DeleteRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DeleteRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
+		n4, err4 := m.Credentials.MarshalTo(dAtA[i:])
+		if err4 != nil {
+			return 0, err4
+		}
+		i += n4
+	}
+	if m.Key != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	return i, nil
+}
+
+func (m *DeleteResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DeleteResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Key != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	if m.Success {
+		dAtA[i] = 0x10
+		i++
+		if m.Success {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *SearchRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SearchRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
+		n5, err5 := m.Credentials.MarshalTo(dAtA[i:])
+		if err5 != nil {
+			return 0, err5
+		}
+		i += n5
+	}
+	if m.Key != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	return i, nil
+}
+
+func (m *SearchResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SearchResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Key != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	if len(m.Value) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(len(m.Value)))
+		i += copy(dAtA[i:], m.Value)
+	}
+	if m.Success {
+		dAtA[i] = 0x18
+		i++
+		if m.Success {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
 	return i, nil
 }
 
@@ -141,12 +1483,161 @@ func encodeVarintTree(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return offset + 1
 }
-func (m *HelloWorld) Size() (n int) {
+func (m *Credentials) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
+	if m.Id != 0 {
+		n += 1 + sovTree(uint64(m.Id))
+	}
+	l = len(m.Token)
+	if l > 0 {
+		n += 1 + l + sovTree(uint64(l))
+	}
+	return n
+}
+
+func (m *InitRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.MaxSize != 0 {
+		n += 1 + sovTree(uint64(m.MaxSize))
+	}
+	return n
+}
+
+func (m *InitResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		l = m.Credentials.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	return n
+}
+
+func (m *InitNode) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		l = m.Credentials.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	if m.MaxSize != 0 {
+		n += 1 + sovTree(uint64(m.MaxSize))
+	}
+	return n
+}
+
+func (m *InsertRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		l = m.Credentials.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	l = len(m.Value)
+	if l > 0 {
+		n += 1 + l + sovTree(uint64(l))
+	}
+	return n
+}
+
+func (m *InsertResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	if m.Success {
+		n += 2
+	}
+	return n
+}
+
+func (m *DeleteRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		l = m.Credentials.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	return n
+}
+
+func (m *DeleteResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	if m.Success {
+		n += 2
+	}
+	return n
+}
+
+func (m *SearchRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		l = m.Credentials.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	return n
+}
+
+func (m *SearchResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	l = len(m.Value)
+	if l > 0 {
+		n += 1 + l + sovTree(uint64(l))
+	}
+	if m.Success {
+		n += 2
+	}
 	return n
 }
 
@@ -163,11 +1654,112 @@ func sovTree(x uint64) (n int) {
 func sozTree(x uint64) (n int) {
 	return sovTree(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (this *HelloWorld) String() string {
+func (this *Credentials) String() string {
 	if this == nil {
 		return "nil"
 	}
-	s := strings.Join([]string{`&HelloWorld{`,
+	s := strings.Join([]string{`&Credentials{`,
+		`Id:` + fmt.Sprintf("%v", this.Id) + `,`,
+		`Token:` + fmt.Sprintf("%v", this.Token) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *InitRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&InitRequest{`,
+		`MaxSize:` + fmt.Sprintf("%v", this.MaxSize) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *InitResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&InitResponse{`,
+		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *InitNode) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&InitNode{`,
+		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`MaxSize:` + fmt.Sprintf("%v", this.MaxSize) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *InsertRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&InsertRequest{`,
+		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`Value:` + fmt.Sprintf("%v", this.Value) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *InsertResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&InsertResponse{`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`Success:` + fmt.Sprintf("%v", this.Success) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *DeleteRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&DeleteRequest{`,
+		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *DeleteResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&DeleteResponse{`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`Success:` + fmt.Sprintf("%v", this.Success) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SearchRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SearchRequest{`,
+		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SearchResponse) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SearchResponse{`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`Value:` + fmt.Sprintf("%v", this.Value) + `,`,
+		`Success:` + fmt.Sprintf("%v", this.Success) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -180,7 +1772,7 @@ func valueToStringTree(v interface{}) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("*%v", pv)
 }
-func (m *HelloWorld) Unmarshal(dAtA []byte) error {
+func (m *Credentials) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -203,12 +1795,996 @@ func (m *HelloWorld) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: HelloWorld: wiretype end group for non-group")
+			return fmt.Errorf("proto: Credentials: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: HelloWorld: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Credentials: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Token = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InitRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InitRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InitRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxSize", wireType)
+			}
+			m.MaxSize = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxSize |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InitResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InitResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InitResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Credentials", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Credentials == nil {
+				m.Credentials = &Credentials{}
+			}
+			if err := m.Credentials.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InitNode) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InitNode: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InitNode: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Credentials", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Credentials == nil {
+				m.Credentials = &Credentials{}
+			}
+			if err := m.Credentials.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxSize", wireType)
+			}
+			m.MaxSize = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxSize |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InsertRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InsertRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InsertRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Credentials", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Credentials == nil {
+				m.Credentials = &Credentials{}
+			}
+			if err := m.Credentials.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Value = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InsertResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InsertResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InsertResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Success", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Success = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DeleteRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DeleteRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DeleteRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Credentials", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Credentials == nil {
+				m.Credentials = &Credentials{}
+			}
+			if err := m.Credentials.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DeleteResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DeleteResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DeleteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Success", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Success = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SearchRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SearchRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SearchRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Credentials", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Credentials == nil {
+				m.Credentials = &Credentials{}
+			}
+			if err := m.Credentials.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SearchResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SearchResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SearchResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Value = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Success", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Success = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])

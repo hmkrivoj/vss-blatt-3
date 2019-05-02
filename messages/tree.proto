@@ -1,4 +1,59 @@
 syntax = "proto3";
 package messages;
 
-message HelloWorld {}
+message Credentials {
+    int64 id = 1;
+    string token = 2;
+}
+
+message InitRequest {
+    int64 maxSize = 1;
+}
+
+message InitResponse {
+    Credentials credentials = 1;
+}
+
+message InitNode {
+    Credentials credentials = 1;
+    int64 maxSize = 2;
+}
+
+message InsertRequest {
+    Credentials credentials = 1;
+    int64 key = 2;
+    string value = 3;
+}
+
+message InsertResponse {
+    int64 key = 1;
+    bool success = 2;
+}
+
+message DeleteRequest {
+    Credentials credentials = 1;
+    int64 key = 2;
+}
+
+message DeleteResponse {
+    int64 key = 1;
+    bool success = 2;
+}
+
+message SearchRequest {
+    Credentials credentials = 1;
+    int64 key = 2;
+}
+
+message SearchResponse {
+    int64 key = 1;
+    string value = 2;
+    bool success = 3;
+}
+
+service TreeService {
+    rpc init(InitRequest) returns (InitResponse);
+    rpc insert(InsertRequest) returns (InsertResponse);
+    rpc search(SearchRequest) returns (SearchResponse);
+    rpc delete(DeleteRequest) returns (DeleteResponse);
+}
