@@ -90,7 +90,10 @@ func (state *NodeActor) split(context actor.Context) {
 	context.Send(state.left, messages.InitNode{MaxSize: int64(state.maxSize), Credentials: &state.credentials})
 	log.Printf("%s sending items to lefthand child: %v", context.Self().Id, keys[:mid])
 	for _, key := range keys[:mid] {
-		context.Send(state.left, messages.InsertRequest{Key: int64(key), Value: state.content[key], Credentials: &state.credentials})
+		context.Send(state.left, messages.InsertRequest{
+			Key:         int64(key),
+			Value:       state.content[key],
+			Credentials: &state.credentials})
 	}
 
 	log.Printf("%s creating righthand child", context.Self().Id)
@@ -98,7 +101,10 @@ func (state *NodeActor) split(context actor.Context) {
 	context.Send(state.right, messages.InitNode{MaxSize: int64(state.maxSize), Credentials: &state.credentials})
 	log.Printf("%s sending items to righthand child: %v", context.Self().Id, keys[mid:])
 	for _, key := range keys[mid:] {
-		context.Send(state.right, messages.InsertRequest{Key: int64(key), Value: state.content[key], Credentials: &state.credentials})
+		context.Send(state.right, messages.InsertRequest{
+			Key:         int64(key),
+			Value:       state.content[key],
+			Credentials: &state.credentials})
 	}
 
 	state.content = make(map[int]string)
