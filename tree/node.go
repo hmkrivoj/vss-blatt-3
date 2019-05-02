@@ -12,6 +12,7 @@ type NodeActor struct {
 	content                 map[int]string
 	maxSize, maxLeftSideKey int
 	behaviour               actor.Behavior
+	credentials             messages.Credentials
 }
 
 func (state *NodeActor) Receive(context actor.Context) {
@@ -20,25 +21,38 @@ func (state *NodeActor) Receive(context actor.Context) {
 
 func (state *NodeActor) leaf(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case messages.Create:
+	case messages.InitNode:
 		log.Printf("%s created", context.Self().Id)
 		state.maxSize = int(msg.MaxSize)
 		state.content = make(map[int]string)
-	case messages.Insert:
+		state.credentials = *msg.Credentials
+	case messages.InsertRequest:
 		log.Printf("%s receives (%d, %s)", context.Self().Id, msg.Key, msg.Value)
-		state.content[int(msg.Key)] = msg.Value
+		if _, exists := state.content[int(msg.Key)]; state.credentials == *msg.Credentials && exists {
+			context.Respond(messages.InsertResponse{Key: msg.Key, Success: false})
+		} else {
+			state.content[int(msg.Key)] = msg.Value
+			context.Respond(messages.InsertResponse{Key: msg.Key, Success: true})
+		}
 		if len(state.content) > state.maxSize {
 			state.split(context)
 		}
-	case messages.Search:
-		value, ok := state.content[int(msg.Key)]
-		context.Respond(messages.Found{HasFound: ok, Key: msg.Key, Value: value})
+	case messages.SearchRequest:
+		if value, ok := state.content[int(msg.Key)]; state.credentials == *msg.Credentials && ok {
+			context.Respond(messages.SearchResponse{Success: true, Key: msg.Key, Value: value})
+		} else {
+			context.Respond(messages.SearchResponse{Success: false, Key: msg.Key})
+		}
 	}
 }
 
 func (state *NodeActor) internalNode(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case messages.Insert:
+	case messages.InsertRequest:
+		if state.credentials != *msg.Credentials {
+			context.Respond(messages.InsertResponse{Key: msg.Key, Success: false})
+			return
+		}
 		if int(msg.Key) > state.maxLeftSideKey {
 			log.Printf("%s forwards (%d, %s) to righthand child", context.Self().Id, msg.Key, msg.Value)
 			context.Forward(state.right)
@@ -46,7 +60,11 @@ func (state *NodeActor) internalNode(context actor.Context) {
 			log.Printf("%s forwards (%d, %s) to lefthand child", context.Self().Id, msg.Key, msg.Value)
 			context.Forward(state.left)
 		}
-	case messages.Search:
+	case messages.SearchRequest:
+		if state.credentials != *msg.Credentials {
+			context.Respond(messages.SearchResponse{Key: msg.Key, Success: false})
+			return
+		}
 		if int(msg.Key) > state.maxLeftSideKey {
 			context.Forward(state.right)
 		} else {
@@ -69,18 +87,18 @@ func (state *NodeActor) split(context actor.Context) {
 
 	log.Printf("%s creating lefthand child", context.Self().Id)
 	state.left = context.Spawn(actor.PropsFromProducer(nodeActorProducer))
-	context.Send(state.left, messages.Create{MaxSize: int32(state.maxSize)})
+	context.Send(state.left, messages.InitNode{MaxSize: int64(state.maxSize), Credentials: &state.credentials})
 	log.Printf("%s sending items to lefthand child: %v", context.Self().Id, keys[:mid])
 	for _, key := range keys[:mid] {
-		context.Send(state.left, messages.Insert{Key: int32(key), Value: state.content[key]})
+		context.Send(state.left, messages.InsertRequest{Key: int64(key), Value: state.content[key], Credentials: &state.credentials})
 	}
 
 	log.Printf("%s creating righthand child", context.Self().Id)
 	state.right = context.Spawn(actor.PropsFromProducer(nodeActorProducer))
-	context.Send(state.right, messages.Create{MaxSize: int32(state.maxSize)})
+	context.Send(state.right, messages.InitNode{MaxSize: int64(state.maxSize), Credentials: &state.credentials})
 	log.Printf("%s sending items to righthand child: %v", context.Self().Id, keys[mid:])
 	for _, key := range keys[mid:] {
-		context.Send(state.right, messages.Insert{Key: int32(key), Value: state.content[key]})
+		context.Send(state.right, messages.InsertRequest{Key: int64(key), Value: state.content[key], Credentials: &state.credentials})
 	}
 
 	state.content = make(map[int]string)
