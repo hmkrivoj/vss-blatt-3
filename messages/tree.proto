@@ -6,17 +6,16 @@ message Credentials {
     string token = 2;
 }
 
-message InitRequest {
+message CreateTreeRequest {
     int64 maxSize = 1;
 }
 
-message InitResponse {
+message CreateTreeResponse {
     Credentials credentials = 1;
 }
 
-message InitNode {
-    Credentials credentials = 1;
-    int64 maxSize = 2;
+message CreateNode {
+    int64 maxSize = 1;
 }
 
 message InsertRequest {
@@ -27,7 +26,12 @@ message InsertRequest {
 
 message InsertResponse {
     int64 key = 1;
-    bool success = 2;
+    enum Type {
+        SUCCESS = 0;
+        KEY_ALREADY_EXISTS = 1;
+        ACCESS_DENIED = 2;
+    }
+    Type type = 3;
 }
 
 message DeleteRequest {
@@ -38,6 +42,12 @@ message DeleteRequest {
 message DeleteResponse {
     int64 key = 1;
     bool success = 2;
+    enum Type {
+        SUCCESS = 0;
+        NO_SUCH_KEY = 1;
+        ACCESS_DENIED = 2;
+    }
+    Type type = 3;
 }
 
 message SearchRequest {
@@ -48,12 +58,10 @@ message SearchRequest {
 message SearchResponse {
     int64 key = 1;
     string value = 2;
-    bool success = 3;
-}
-
-service TreeService {
-    rpc init(InitRequest) returns (InitResponse);
-    rpc insert(InsertRequest) returns (InsertResponse);
-    rpc search(SearchRequest) returns (SearchResponse);
-    rpc delete(DeleteRequest) returns (DeleteResponse);
+    enum Type {
+        SUCCESS = 0;
+        NO_SUCH_KEY = 1;
+        ACCESS_DENIED = 2;
+    }
+    Type type = 3;
 }
