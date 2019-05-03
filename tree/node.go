@@ -1,10 +1,11 @@
 package tree
 
 import (
-	"github.com/AsynkronIT/protoactor-go/actor"
-	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
 	"log"
 	"sort"
+
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
 )
 
 type nodeActor struct {

@@ -3,12 +3,13 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"os"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/tree"
 	"github.com/urfave/cli"
-	"os"
 )
 
 type treeServiceActor struct {
