@@ -55,10 +55,6 @@ func newTreeServiceActor() actor.Actor {
 	return &myActor
 }
 
-func init() {
-	remote.Register("treeservice", actor.PropsFromProducer(newTreeServiceActor))
-}
-
 func main() {
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
@@ -69,6 +65,7 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
+		remote.Register("treeservice", actor.PropsFromProducer(newTreeServiceActor))
 		remote.Start(c.String("bind"))
 		return nil
 	}
