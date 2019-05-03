@@ -3,14 +3,16 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
-	"os"
-
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/tree"
 	"github.com/urfave/cli"
+	"os"
+	"sync"
 )
+
+var wg = &sync.WaitGroup{}
 
 type treeServiceActor struct {
 	tokens    map[int64]string
@@ -20,6 +22,11 @@ type treeServiceActor struct {
 
 func (state *treeServiceActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
+	case actor.PoisonPill:
+		for _, pid := range state.trees {
+			context.Poison(pid)
+		}
+		wg.Done()
 	case messages.CreateTreeRequest:
 		id := state.idCounter
 		state.idCounter++
@@ -66,8 +73,10 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
+		wg.Add(1)
 		remote.Register("treeservice", actor.PropsFromProducer(newTreeServiceActor))
 		remote.Start(c.String("bind"))
+		wg.Wait()
 		return nil
 	}
 	_ = app.Run(os.Args)
