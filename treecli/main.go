@@ -41,11 +41,11 @@ func main() {
 				pid := pidResp.Pid
 				res, _ := actor.EmptyRootContext.RequestFuture(
 					pid,
-					messages.CreateTreeRequest{
+					&messages.CreateTreeRequest{
 						MaxSize: c.Int64("maxsize")},
 					timeout,
 				).Result()
-				response := res.(messages.CreateTreeResponse)
+				response := res.(*messages.CreateTreeResponse)
 				fmt.Printf("%d, %s", response.Credentials.Id, response.Credentials.Token)
 				return nil
 			},
