@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	timeout := 50 * time.Millisecond
+	timeout := 5 * time.Second
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
