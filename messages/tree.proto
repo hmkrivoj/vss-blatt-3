@@ -26,11 +26,6 @@ message InsertRequest {
 
 message InsertResponse {
     int64 key = 1;
-    enum Type {
-        SUCCESS = 0;
-        KEY_ALREADY_EXISTS = 1;
-        ACCESS_DENIED = 2;
-    }
     Type type = 3;
 }
 
@@ -42,11 +37,6 @@ message DeleteRequest {
 message DeleteResponse {
     int64 key = 1;
     bool success = 2;
-    enum Type {
-        SUCCESS = 0;
-        NO_SUCH_KEY = 1;
-        ACCESS_DENIED = 2;
-    }
     Type type = 3;
 }
 
@@ -58,10 +48,13 @@ message SearchRequest {
 message SearchResponse {
     int64 key = 1;
     string value = 2;
-    enum Type {
-        SUCCESS = 0;
-        NO_SUCH_KEY = 1;
-        ACCESS_DENIED = 2;
-    }
     Type type = 3;
+}
+
+
+enum Type {
+    SUCCESS = 0;
+    KEY_ALREADY_EXISTS = 1;
+    NO_SUCH_KEY = 2;
+    ACCESS_DENIED = 3;
 }
