@@ -12,8 +12,6 @@ import (
 	"sync"
 )
 
-var wg = &sync.WaitGroup{}
-
 type treeServiceActor struct {
 	tokens    map[int64]string
 	trees     map[int64]*actor.PID
@@ -22,12 +20,7 @@ type treeServiceActor struct {
 
 func (state *treeServiceActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case actor.PoisonPill:
-		for _, pid := range state.trees {
-			context.Poison(pid)
-		}
-		wg.Done()
-	case messages.CreateTreeRequest:
+	case *messages.CreateTreeRequest:
 		id := state.idCounter
 		state.idCounter++
 		token := make([]byte, 4)
@@ -40,13 +33,13 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 		context.Respond(
 			&messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
 		)
-	case messages.SearchRequest:
+	case *messages.SearchRequest:
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
 			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
-	case messages.InsertRequest:
+	case *messages.InsertRequest:
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
 			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
@@ -73,6 +66,7 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
+		var wg sync.WaitGroup
 		wg.Add(1)
 		remote.Register("treeservice", actor.PropsFromProducer(newTreeServiceActor))
 		remote.Start(c.String("bind"))
