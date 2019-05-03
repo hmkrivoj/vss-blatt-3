@@ -36,8 +36,8 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				remote.Start(c.String("bind"))
-				pidResp, _ := remote.SpawnNamed(c.String("remote"), "remote", "treeservice", timeout)
+				remote.Start(c.GlobalString("bind"))
+				pidResp, _ := remote.SpawnNamed(c.GlobalString("remote"), "remote", "treeservice", timeout)
 				pid := pidResp.Pid
 				res, _ := actor.EmptyRootContext.RequestFuture(
 					pid,
