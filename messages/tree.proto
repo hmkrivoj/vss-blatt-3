@@ -14,10 +14,6 @@ message CreateTreeResponse {
     Credentials credentials = 1;
 }
 
-message CreateNode {
-    int64 maxSize = 1;
-}
-
 message InsertRequest {
     Credentials credentials = 1;
     int64 key = 2;
