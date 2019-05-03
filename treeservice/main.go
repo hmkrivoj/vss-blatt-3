@@ -38,17 +38,17 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 
 		context.Send(state.trees[id], messages.CreateTreeRequest{MaxSize: msg.MaxSize})
 		context.Respond(
-			messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
+			&messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
 		)
 	case messages.SearchRequest:
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(messages.SearchResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
+			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	case messages.InsertRequest:
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
+			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
