@@ -37,14 +37,20 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 				remote.Start(c.GlobalString("bind"))
-				pidResp, _ := remote.SpawnNamed(c.GlobalString("remote"), "remote", "treeservice", timeout)
+				pidResp, err := remote.SpawnNamed(c.GlobalString("remote"), "remote", "treeservice", timeout)
+				if err != nil {
+					panic(err)
+				}
 				pid := pidResp.Pid
-				res, _ := actor.EmptyRootContext.RequestFuture(
+				res, err := actor.EmptyRootContext.RequestFuture(
 					pid,
 					&messages.CreateTreeRequest{
 						MaxSize: c.Int64("maxsize")},
 					timeout,
 				).Result()
+				if err != nil {
+					panic(err)
+				}
 				response := res.(*messages.CreateTreeResponse)
 				fmt.Printf("%d, %s", response.Credentials.Id, response.Credentials.Token)
 				return nil
