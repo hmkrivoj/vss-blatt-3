@@ -44,6 +44,12 @@ func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
 	return pid
 }
 
+func handleCredentialsFromCliContext(c *cli.Context) {
+	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
+		panic("Missing credentials.")
+	}
+}
+
 func commandCreatetreeAction(c *cli.Context) error {
 	pid := spawnRemoteFromCliContext(c)
 	res, err := actor.EmptyRootContext.RequestFuture(
@@ -63,9 +69,7 @@ func commandInsertAction(c *cli.Context) error {
 	if !c.IsSet(commandInsertFlagKey) || !c.IsSet(commandInsertFlagValue) {
 		panic("Missing key or value.")
 	}
-	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
-		panic("Missing credentials.")
-	}
+	handleCredentialsFromCliContext(c)
 	pid := spawnRemoteFromCliContext(c)
 	res, err := actor.EmptyRootContext.RequestFuture(
 		pid,
@@ -102,9 +106,7 @@ func commandSearchAction(c *cli.Context) error {
 	if !c.IsSet(commandSearchFlagKey) {
 		panic("Missing key.")
 	}
-	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
-		panic("Missing credentials.")
-	}
+	handleCredentialsFromCliContext(c)
 	pid := spawnRemoteFromCliContext(c)
 	res, err := actor.EmptyRootContext.RequestFuture(
 		pid,
