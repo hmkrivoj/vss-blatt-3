@@ -11,32 +11,42 @@ import (
 	"github.com/urfave/cli"
 )
 
+const timeout = 5 * time.Second
+
+const globalFlagNameBind = "bind"
+const globalFlagNameRemote = "remote"
+const globalFlagNameId = "id"
+const globalFlagNameToken = "token"
+
+const commandNameCreatetree = "createtree"
+const commandNameInsert = "insert"
+const commandNameSearch = "search"
+
 func main() {
-	timeout := 5 * time.Second
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "bind",
+			Name:  globalFlagNameBind,
 			Usage: "address treecli should use",
 			Value: "treecli.actors:8091",
 		},
 		cli.StringFlag{
-			Name:  "remote",
+			Name:  globalFlagNameRemote,
 			Usage: "address of the treeservice",
 			Value: "treeservice.actors:8090",
 		},
 		cli.Int64Flag{
-			Name:  "id",
+			Name:  globalFlagNameId,
 			Usage: "id of the tree you want to alter",
 		},
 		cli.StringFlag{
-			Name:  "token",
+			Name:  globalFlagNameToken,
 			Usage: "token to authorize your access for the specified tree",
 		},
 	}
 	app.Commands = []cli.Command{
 		{
-			Name: "createtree",
+			Name: commandNameCreatetree,
 			Flags: []cli.Flag{
 				cli.Int64Flag{
 					Name:  "maxsize",
@@ -45,9 +55,9 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				remote.Start(c.GlobalString("bind"))
+				remote.Start(c.GlobalString(globalFlagNameBind))
 				pidResp, err := remote.SpawnNamed(
-					c.GlobalString("remote"),
+					c.GlobalString(globalFlagNameRemote),
 					"remote",
 					"treeservice",
 					timeout,
@@ -70,7 +80,7 @@ func main() {
 			},
 		},
 		{
-			Name: "insert",
+			Name: commandNameInsert,
 			Flags: []cli.Flag{
 				cli.Int64Flag{
 					Name: "key",
@@ -83,12 +93,12 @@ func main() {
 				if !c.IsSet("key") || !c.IsSet("value") {
 					panic("Missing key or value.")
 				}
-				if !c.GlobalIsSet("id") || !c.GlobalIsSet("token") {
+				if !c.GlobalIsSet(globalFlagNameId) || !c.GlobalIsSet(globalFlagNameToken) {
 					panic("Missing credentials.")
 				}
-				remote.Start(c.GlobalString("bind"))
+				remote.Start(c.GlobalString(globalFlagNameBind))
 				pidResp, err := remote.SpawnNamed(
-					c.GlobalString("remote"),
+					c.GlobalString(globalFlagNameRemote),
 					"remote",
 					"treeservice",
 					timeout,
@@ -101,8 +111,8 @@ func main() {
 					pid,
 					&messages.InsertRequest{
 						Credentials: &messages.Credentials{
-							Token: c.GlobalString("token"),
-							Id:    c.GlobalInt64("id"),
+							Token: c.GlobalString(globalFlagNameToken),
+							Id:    c.GlobalInt64(globalFlagNameId),
 						},
 						Key:   c.Int64("key"),
 						Value: c.String("value"),
@@ -129,7 +139,7 @@ func main() {
 			},
 		},
 		{
-			Name: "search",
+			Name: commandNameSearch,
 			Flags: []cli.Flag{
 				cli.Int64Flag{
 					Name: "key",
@@ -139,12 +149,12 @@ func main() {
 				if !c.IsSet("key") {
 					panic("Missing key.")
 				}
-				if !c.GlobalIsSet("id") || !c.GlobalIsSet("token") {
+				if !c.GlobalIsSet(globalFlagNameId) || !c.GlobalIsSet(globalFlagNameToken) {
 					panic("Missing credentials.")
 				}
-				remote.Start(c.GlobalString("bind"))
+				remote.Start(c.GlobalString(globalFlagNameBind))
 				pidResp, err := remote.SpawnNamed(
-					c.GlobalString("remote"),
+					c.GlobalString(globalFlagNameRemote),
 					"remote",
 					"treeservice",
 					timeout,
@@ -157,8 +167,8 @@ func main() {
 					pid,
 					&messages.SearchRequest{
 						Credentials: &messages.Credentials{
-							Token: c.GlobalString("token"),
-							Id:    c.GlobalInt64("id"),
+							Token: c.GlobalString(globalFlagNameToken),
+							Id:    c.GlobalInt64(globalFlagNameId),
 						},
 						Key: c.Int64("key"),
 					},
