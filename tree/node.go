@@ -21,11 +21,11 @@ func (state *nodeActor) Receive(context actor.Context) {
 
 func (state *nodeActor) leaf(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case messages.CreateTreeRequest:
-		log.Printf("%s created", context.Self().Id)
+	case *messages.CreateTreeRequest:
 		state.maxSize = int(msg.MaxSize)
 		state.content = make(map[int]string)
-	case messages.InsertRequest:
+		log.Printf("%s created", context.Self().Id)
+	case *messages.InsertRequest:
 		log.Printf("%s receives (%d, %s)", context.Self().Id, msg.Key, msg.Value)
 		if _, exists := state.content[int(msg.Key)]; exists {
 			context.Respond(messages.InsertResponse{Key: msg.Key, Type: messages.KEY_ALREADY_EXISTS})
@@ -36,7 +36,7 @@ func (state *nodeActor) leaf(context actor.Context) {
 		if len(state.content) > state.maxSize {
 			state.split(context)
 		}
-	case messages.SearchRequest:
+	case *messages.SearchRequest:
 		if value, exists := state.content[int(msg.Key)]; exists {
 			context.Respond(messages.SearchResponse{Key: msg.Key, Value: value, Type: messages.SUCCESS})
 		} else {

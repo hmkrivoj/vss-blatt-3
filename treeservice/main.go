@@ -29,7 +29,7 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 		state.tokens[id] = fmt.Sprintf("%x", token)
 		state.trees[id] = context.Spawn(actor.PropsFromProducer(tree.NodeActorProducer))
 
-		context.Send(state.trees[id], messages.CreateTreeRequest{MaxSize: msg.MaxSize})
+		context.Send(state.trees[id], &messages.CreateTreeRequest{MaxSize: msg.MaxSize})
 		context.Respond(
 			&messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
 		)
@@ -44,7 +44,7 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 			fmt.Printf("Invalid credentials... treeservice denies access.")
 			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
-			fmt.Printf("Valid credentials... treeservice forwards insertrequest to %v.", state.trees[msg.Credentials.Id])
+			fmt.Printf("Valid credentials... treeservice forwards insertrequest to %v.\n", state.trees[msg.Credentials.Id])
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	}
