@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
@@ -20,7 +21,7 @@ type treeServiceActor struct {
 
 func (state *treeServiceActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case messages.CreateTreeRequest:
+	case *messages.CreateTreeRequest:
 		id := state.idCounter
 		state.idCounter++
 		token := make([]byte, 4)
@@ -29,20 +30,35 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 		state.tokens[id] = fmt.Sprintf("%x", token)
 		state.trees[id] = context.Spawn(actor.PropsFromProducer(tree.NodeActorProducer))
 
-		context.Send(state.trees[id], messages.CreateTreeRequest{MaxSize: msg.MaxSize})
+		context.Send(state.trees[id], &messages.CreateTreeRequest{MaxSize: msg.MaxSize})
 		context.Respond(
-			messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
+			&messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
 		)
-	case messages.SearchRequest:
+	case *messages.SearchRequest:
+		if _, exists := state.trees[msg.Credentials.Id]; !exists {
+			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
+			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.NO_SUCH_TREE})
+			return
+		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(messages.SearchResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
+			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
-	case messages.InsertRequest:
+	case *messages.InsertRequest:
+		if _, exists := state.trees[msg.Credentials.Id]; !exists {
+			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
+			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.NO_SUCH_TREE})
+			return
+		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
+			fmt.Printf("Invalid credentials... treeservice denies access.\n")
+			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
+			fmt.Printf(
+				"Valid credentials... treeservice forwards insertrequest to %v.\n",
+				state.trees[msg.Credentials.Id],
+			)
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	}
@@ -66,8 +82,11 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
+		var wg sync.WaitGroup
+		wg.Add(1)
 		remote.Register("treeservice", actor.PropsFromProducer(newTreeServiceActor))
 		remote.Start(c.String("bind"))
+		wg.Wait()
 		return nil
 	}
 	_ = app.Run(os.Args)
