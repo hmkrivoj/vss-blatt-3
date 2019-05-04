@@ -16,13 +16,21 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "bind",
-			Usage: "the address treecli shall bind to",
+			Usage: "address treecli should use",
 			Value: "treecli.actors:8091",
 		},
 		cli.StringFlag{
 			Name:  "remote",
-			Usage: "the address treeservice is bound to",
+			Usage: "address of the treeservice",
 			Value: "treeservice.actors:8090",
+		},
+		cli.Int64Flag{
+			Name:  "id",
+			Usage: "id of the tree you want to alter",
+		},
+		cli.StringFlag{
+			Name:  "token",
+			Usage: "token to authorize your access for the specified tree",
 		},
 	}
 	app.Commands = []cli.Command{
@@ -37,22 +45,83 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 				remote.Start(c.GlobalString("bind"))
-				pidResp, err := remote.SpawnNamed(c.GlobalString("remote"), "remote", "treeservice", timeout)
+				pidResp, err := remote.SpawnNamed(
+					c.GlobalString("remote"),
+					"remote",
+					"treeservice",
+					timeout,
+				)
 				if err != nil {
 					panic(err)
 				}
 				pid := pidResp.Pid
 				res, err := actor.EmptyRootContext.RequestFuture(
 					pid,
-					&messages.CreateTreeRequest{
-						MaxSize: c.Int64("maxsize")},
+					&messages.CreateTreeRequest{MaxSize: c.Int64("maxsize")},
 					timeout,
 				).Result()
 				if err != nil {
 					panic(err)
 				}
 				response := res.(*messages.CreateTreeResponse)
-				fmt.Printf("%d, %s", response.Credentials.Id, response.Credentials.Token)
+				fmt.Printf("id: %d, token: %s\n", response.Credentials.Id, response.Credentials.Token)
+				return nil
+			},
+		},
+		{
+			Name: "insert",
+			Flags: []cli.Flag{
+				cli.Int64Flag{
+					Name: "key",
+				},
+				cli.StringFlag{
+					Name: "value",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				if !c.IsSet("key") || !c.IsSet("value") {
+					panic("Missing key or value.")
+				}
+				if !c.GlobalIsSet("id") || !c.GlobalIsSet("token") {
+					panic("Missing credentials.")
+				}
+				remote.Start(c.GlobalString("bind"))
+				pidResp, err := remote.SpawnNamed(
+					c.GlobalString("remote"),
+					"remote",
+					"treeservice",
+					timeout,
+				)
+				if err != nil {
+					panic(err)
+				}
+				pid := pidResp.Pid
+				res, err := actor.EmptyRootContext.RequestFuture(
+					pid,
+					&messages.InsertRequest{
+						Credentials: &messages.Credentials{
+							Token: c.GlobalString("token"),
+							Id:    c.GlobalInt64("id"),
+						},
+						Key:   c.Int64("key"),
+						Value: c.String("value"),
+					},
+					timeout,
+				).Result()
+				if err != nil {
+					panic(err)
+				}
+				response := res.(*messages.InsertResponse)
+				switch response.Type {
+				case messages.SUCCESS:
+					fmt.Printf("(%d, %s) successfully inserted\n", c.Int64("key"), c.Int64("value"))
+				case messages.KEY_ALREADY_EXISTS:
+					panic(fmt.Sprintf("Tree already contains key %d", c.Int64("key")))
+				case messages.ACCESS_DENIED:
+					panic("Invalid credentials")
+				default:
+					panic("Unknown response type")
+				}
 				return nil
 			},
 		},
