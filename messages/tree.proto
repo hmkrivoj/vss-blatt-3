@@ -53,4 +53,5 @@ enum Type {
     KEY_ALREADY_EXISTS = 1;
     NO_SUCH_KEY = 2;
     ACCESS_DENIED = 3;
+    NO_SUCH_TREE = 4;
 }
