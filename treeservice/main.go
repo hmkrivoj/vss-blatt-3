@@ -35,6 +35,11 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 			&messages.CreateTreeResponse{Credentials: &messages.Credentials{Id: id, Token: state.tokens[id]}},
 		)
 	case *messages.SearchRequest:
+		if _, exists := state.trees[msg.Credentials.Id]; !exists {
+			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
+			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.NO_SUCH_TREE})
+			return
+		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
 			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
