@@ -3,13 +3,14 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"os"
+	"sync"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/tree"
 	"github.com/urfave/cli"
-	"os"
-	"sync"
 )
 
 type treeServiceActor struct {
@@ -40,11 +41,19 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	case *messages.InsertRequest:
+		if _, exists := state.trees[msg.Credentials.Id]; !exists {
+			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
+			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.NO_SUCH_TREE})
+			return
+		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			fmt.Printf("Invalid credentials... treeservice denies access.")
+			fmt.Printf("Invalid credentials... treeservice denies access.\n")
 			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
-			fmt.Printf("Valid credentials... treeservice forwards insertrequest to %v.\n", state.trees[msg.Credentials.Id])
+			fmt.Printf(
+				"Valid credentials... treeservice forwards insertrequest to %v.\n",
+				state.trees[msg.Credentials.Id],
+			)
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	}

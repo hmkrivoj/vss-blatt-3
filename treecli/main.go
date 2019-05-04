@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
 	"github.com/urfave/cli"
-	"os"
-	"time"
 )
 
 func main() {
@@ -39,7 +40,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.Int64Flag{
 					Name:  "maxsize",
-					Usage: "maximal size of a leaf",
+					Usage: "max size of a leaf",
 					Value: 2,
 				},
 			},
@@ -114,11 +115,13 @@ func main() {
 				response := res.(*messages.InsertResponse)
 				switch response.Type {
 				case messages.SUCCESS:
-					fmt.Printf("(%d, %s) successfully inserted\n", c.Int64("key"), c.Int64("value"))
+					fmt.Printf("(%d, %s) successfully inserted\n", c.Int64("key"), c.String("value"))
 				case messages.KEY_ALREADY_EXISTS:
 					panic(fmt.Sprintf("Tree already contains key %d", c.Int64("key")))
 				case messages.ACCESS_DENIED:
 					panic("Invalid credentials")
+				case messages.NO_SUCH_TREE:
+					panic("No such tree")
 				default:
 					panic("Unknown response type")
 				}
