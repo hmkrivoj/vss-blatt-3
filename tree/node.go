@@ -28,29 +28,29 @@ func (state *nodeActor) leaf(context actor.Context) {
 	case *messages.InsertRequest:
 		log.Printf("%s receives (%d, %s)", context.Self().Id, msg.Key, msg.Value)
 		if _, exists := state.content[int(msg.Key)]; exists {
-			context.Respond(messages.InsertResponse{Key: msg.Key, Type: messages.KEY_ALREADY_EXISTS})
+			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.KEY_ALREADY_EXISTS})
 		} else {
 			state.content[int(msg.Key)] = msg.Value
-			context.Respond(messages.InsertResponse{Key: msg.Key, Type: messages.SUCCESS})
+			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.SUCCESS})
 		}
 		if len(state.content) > state.maxSize {
 			state.split(context)
 		}
 	case *messages.SearchRequest:
 		if value, exists := state.content[int(msg.Key)]; exists {
-			context.Respond(messages.SearchResponse{Key: msg.Key, Value: value, Type: messages.SUCCESS})
+			context.Respond(&messages.SearchResponse{Key: msg.Key, Value: value, Type: messages.SUCCESS})
 		} else {
-			context.Respond(messages.SearchResponse{Key: msg.Key, Type: messages.NO_SUCH_KEY})
+			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.NO_SUCH_KEY})
 		}
 	}
 }
 
 func (state *nodeActor) internalNode(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case actor.PoisonPill:
+	case *actor.PoisonPill:
 		context.Poison(state.left)
 		context.Poison(state.right)
-	case messages.InsertRequest:
+	case *messages.InsertRequest:
 		if int(msg.Key) > state.maxLeftSideKey {
 			log.Printf("%s forwards (%d, %s) to righthand child", context.Self().Id, msg.Key, msg.Value)
 			context.Forward(state.right)
@@ -58,7 +58,7 @@ func (state *nodeActor) internalNode(context actor.Context) {
 			log.Printf("%s forwards (%d, %s) to lefthand child", context.Self().Id, msg.Key, msg.Value)
 			context.Forward(state.left)
 		}
-	case messages.SearchRequest:
+	case *messages.SearchRequest:
 		if int(msg.Key) > state.maxLeftSideKey {
 			context.Forward(state.right)
 		} else {
@@ -81,18 +81,18 @@ func (state *nodeActor) split(context actor.Context) {
 
 	log.Printf("%s creating lefthand child", context.Self().Id)
 	state.left = context.Spawn(actor.PropsFromProducer(NodeActorProducer))
-	context.Send(state.left, messages.CreateTreeRequest{MaxSize: int64(state.maxSize)})
+	context.Send(state.left, &messages.CreateTreeRequest{MaxSize: int64(state.maxSize)})
 	log.Printf("%s sending items to lefthand child: %v", context.Self().Id, keys[:mid])
 	for _, key := range keys[:mid] {
-		context.Send(state.left, messages.InsertRequest{Key: int64(key), Value: state.content[key]})
+		context.Send(state.left, &messages.InsertRequest{Key: int64(key), Value: state.content[key]})
 	}
 
 	log.Printf("%s creating righthand child", context.Self().Id)
 	state.right = context.Spawn(actor.PropsFromProducer(NodeActorProducer))
-	context.Send(state.right, messages.CreateTreeRequest{MaxSize: int64(state.maxSize)})
+	context.Send(state.right, &messages.CreateTreeRequest{MaxSize: int64(state.maxSize)})
 	log.Printf("%s sending items to righthand child: %v", context.Self().Id, keys[mid:])
 	for _, key := range keys[mid:] {
-		context.Send(state.right, messages.InsertRequest{Key: int64(key), Value: state.content[key]})
+		context.Send(state.right, &messages.InsertRequest{Key: int64(key), Value: state.content[key]})
 	}
 
 	state.content = make(map[int]string)
