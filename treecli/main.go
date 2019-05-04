@@ -15,7 +15,7 @@ const timeout = 5 * time.Second
 
 const globalFlagBind = "bind"
 const globalFlagRemote = "remote"
-const globalFlagId = "id"
+const globalFlagID = "id"
 const globalFlagToken = "token"
 
 const commandCreatetreeName = "createtree"
@@ -44,7 +44,7 @@ func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
 }
 
 func handleCredentialsFromCliContext(c *cli.Context) {
-	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
+	if !c.GlobalIsSet(globalFlagID) || !c.GlobalIsSet(globalFlagToken) {
 		panic("Missing credentials.")
 	}
 }
@@ -80,7 +80,7 @@ func commandInsertAction(c *cli.Context) error {
 		&messages.InsertRequest{
 			Credentials: &messages.Credentials{
 				Token: c.GlobalString(globalFlagToken),
-				Id:    c.GlobalInt64(globalFlagId),
+				Id:    c.GlobalInt64(globalFlagID),
 			},
 			Key:   c.Int64(commandInsertFlagKey),
 			Value: c.String(commandInsertFlagValue),
@@ -117,7 +117,7 @@ func commandSearchAction(c *cli.Context) error {
 		&messages.SearchRequest{
 			Credentials: &messages.Credentials{
 				Token: c.GlobalString(globalFlagToken),
-				Id:    c.GlobalInt64(globalFlagId),
+				Id:    c.GlobalInt64(globalFlagID),
 			},
 			Key: c.Int64(commandSearchFlagKey),
 		},
@@ -156,7 +156,7 @@ func main() {
 			Value: "treeservice.actors:8090",
 		},
 		cli.Int64Flag{
-			Name:  globalFlagId,
+			Name:  globalFlagID,
 			Usage: "id of the tree you want to alter",
 		},
 		cli.StringFlag{
