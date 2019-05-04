@@ -128,6 +128,61 @@ func main() {
 				return nil
 			},
 		},
+		{
+			Name: "search",
+			Flags: []cli.Flag{
+				cli.Int64Flag{
+					Name: "key",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				if !c.IsSet("key") {
+					panic("Missing key.")
+				}
+				if !c.GlobalIsSet("id") || !c.GlobalIsSet("token") {
+					panic("Missing credentials.")
+				}
+				remote.Start(c.GlobalString("bind"))
+				pidResp, err := remote.SpawnNamed(
+					c.GlobalString("remote"),
+					"remote",
+					"treeservice",
+					timeout,
+				)
+				if err != nil {
+					panic(err)
+				}
+				pid := pidResp.Pid
+				res, err := actor.EmptyRootContext.RequestFuture(
+					pid,
+					&messages.SearchRequest{
+						Credentials: &messages.Credentials{
+							Token: c.GlobalString("token"),
+							Id:    c.GlobalInt64("id"),
+						},
+						Key: c.Int64("key"),
+					},
+					timeout,
+				).Result()
+				if err != nil {
+					panic(err)
+				}
+				response := res.(*messages.SearchResponse)
+				switch response.Type {
+				case messages.SUCCESS:
+					fmt.Printf("Value for key %d: %s\n", c.Int64("key"), response.Value)
+				case messages.NO_SUCH_KEY:
+					panic(fmt.Sprintf("Tree contains no key %d", c.Int64("key")))
+				case messages.ACCESS_DENIED:
+					panic("Invalid credentials")
+				case messages.NO_SUCH_TREE:
+					panic("No such tree")
+				default:
+					panic("Unknown response type")
+				}
+				return nil
+			},
+		},
 	}
 	_ = app.Run(os.Args)
 }
