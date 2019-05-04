@@ -41,8 +41,10 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 		}
 	case *messages.InsertRequest:
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
+			fmt.Printf("Invalid credentials... treeservice denies access.")
 			context.Respond(&messages.InsertResponse{Key: msg.Key, Type: messages.ACCESS_DENIED})
 		} else {
+			fmt.Printf("Valid credentials... treeservice forwards insertrequest to %v.", state.trees[msg.Credentials.Id])
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	}
