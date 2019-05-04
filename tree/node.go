@@ -42,6 +42,13 @@ func (state *nodeActor) leaf(context actor.Context) {
 		} else {
 			context.Respond(&messages.SearchResponse{Key: msg.Key, Type: messages.NO_SUCH_KEY})
 		}
+	case *messages.DeleteRequest:
+		if _, exists := state.content[int(msg.Key)]; exists {
+			delete(state.content, int(msg.Key))
+			context.Respond(&messages.DeleteResponse{Key: msg.Key, Type: messages.SUCCESS})
+		} else {
+			context.Respond(&messages.DeleteResponse{Key: msg.Key, Type: messages.NO_SUCH_KEY})
+		}
 	}
 }
 
@@ -59,6 +66,12 @@ func (state *nodeActor) internalNode(context actor.Context) {
 			context.Forward(state.left)
 		}
 	case *messages.SearchRequest:
+		if int(msg.Key) > state.maxLeftSideKey {
+			context.Forward(state.right)
+		} else {
+			context.Forward(state.left)
+		}
+	case *messages.DeleteRequest:
 		if int(msg.Key) > state.maxLeftSideKey {
 			context.Forward(state.right)
 		} else {

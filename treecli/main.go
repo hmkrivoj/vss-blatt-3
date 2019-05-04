@@ -28,6 +28,9 @@ const commandInsertFlagValue = "value"
 const commandSearchName = "search"
 const commandSearchFlagKey = "key"
 
+const commandDeleteName = "delete"
+const commandDeleteFlagKey = "key"
+
 func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
 	remote.Start(c.GlobalString(globalFlagBind))
 	pidResp, err := remote.SpawnNamed(
@@ -142,6 +145,42 @@ func commandSearchAction(c *cli.Context) error {
 	return nil
 }
 
+func commandDeleteAction(c *cli.Context) error {
+	if !c.IsSet(commandDeleteFlagKey) {
+		panic("Missing key.")
+	}
+	handleCredentialsFromCliContext(c)
+	pid := spawnRemoteFromCliContext(c)
+	res := requestResult(
+		pid,
+		&messages.DeleteRequest{
+			Credentials: &messages.Credentials{
+				Token: c.GlobalString(globalFlagToken),
+				Id:    c.GlobalInt64(globalFlagID),
+			},
+			Key: c.Int64(commandSearchFlagKey),
+		},
+	)
+	switch msg := res.(type) {
+	case *messages.DeleteResponse:
+		switch msg.Type {
+		case messages.SUCCESS:
+			fmt.Printf("Successfully deleted key %d from tree\n", c.Int64(commandSearchFlagKey))
+		case messages.NO_SUCH_KEY:
+			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandSearchFlagKey)))
+		case messages.ACCESS_DENIED:
+			panic("Invalid credentials")
+		case messages.NO_SUCH_TREE:
+			panic("No such tree")
+		default:
+			panic("Unknown response type")
+		}
+	default:
+		panic("Wrong message type")
+	}
+	return nil
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
@@ -196,6 +235,15 @@ func main() {
 				},
 			},
 			Action: commandSearchAction,
+		},
+		{
+			Name: commandDeleteName,
+			Flags: []cli.Flag{
+				cli.Int64Flag{
+					Name: commandDeleteFlagKey,
+				},
+			},
+			Action: commandDeleteAction,
 		},
 	}
 	_ = app.Run(os.Args)
