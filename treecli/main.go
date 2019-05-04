@@ -13,21 +13,26 @@ import (
 
 const timeout = 5 * time.Second
 
-const globalFlagNameBind = "bind"
-const globalFlagNameRemote = "remote"
-const globalFlagNameId = "id"
-const globalFlagNameToken = "token"
+const globalFlagBind = "bind"
+const globalFlagRemote = "remote"
+const globalFlagId = "id"
+const globalFlagToken = "token"
 
-const commandNameCreatetree = "createtree"
-const commandNameInsert = "insert"
-const commandNameSearch = "search"
+const commandCreatetreeName = "createtree"
+const commandInsertName = "insert"
+const commandSearchName = "search"
+
+const commandCreatetreeFlagMaxsize = "maxsize"
 
 const commandInsertFlagKey = "key"
+const commandInsertFlagValue = "value"
 
-func commandActionCreatetree(c *cli.Context) error {
-	remote.Start(c.GlobalString(globalFlagNameBind))
+const commandSearchFlagKey = "key"
+
+func commandCreatetreeAction(c *cli.Context) error {
+	remote.Start(c.GlobalString(globalFlagBind))
 	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagNameRemote),
+		c.GlobalString(globalFlagRemote),
 		"remote",
 		"treeservice",
 		timeout,
@@ -38,7 +43,7 @@ func commandActionCreatetree(c *cli.Context) error {
 	pid := pidResp.Pid
 	res, err := actor.EmptyRootContext.RequestFuture(
 		pid,
-		&messages.CreateTreeRequest{MaxSize: c.Int64("maxsize")},
+		&messages.CreateTreeRequest{MaxSize: c.Int64(commandCreatetreeFlagMaxsize)},
 		timeout,
 	).Result()
 	if err != nil {
@@ -49,16 +54,16 @@ func commandActionCreatetree(c *cli.Context) error {
 	return nil
 }
 
-func commandActionInsert(c *cli.Context) error {
-	if !c.IsSet("key") || !c.IsSet("value") {
+func commandInsertAction(c *cli.Context) error {
+	if !c.IsSet(commandInsertFlagKey) || !c.IsSet(commandInsertFlagValue) {
 		panic("Missing key or value.")
 	}
-	if !c.GlobalIsSet(globalFlagNameId) || !c.GlobalIsSet(globalFlagNameToken) {
+	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
 		panic("Missing credentials.")
 	}
-	remote.Start(c.GlobalString(globalFlagNameBind))
+	remote.Start(c.GlobalString(globalFlagBind))
 	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagNameRemote),
+		c.GlobalString(globalFlagRemote),
 		"remote",
 		"treeservice",
 		timeout,
@@ -71,11 +76,11 @@ func commandActionInsert(c *cli.Context) error {
 		pid,
 		&messages.InsertRequest{
 			Credentials: &messages.Credentials{
-				Token: c.GlobalString(globalFlagNameToken),
-				Id:    c.GlobalInt64(globalFlagNameId),
+				Token: c.GlobalString(globalFlagToken),
+				Id:    c.GlobalInt64(globalFlagId),
 			},
-			Key:   c.Int64("key"),
-			Value: c.String("value"),
+			Key:   c.Int64(commandInsertFlagKey),
+			Value: c.String(commandInsertFlagValue),
 		},
 		timeout,
 	).Result()
@@ -85,9 +90,9 @@ func commandActionInsert(c *cli.Context) error {
 	response := res.(*messages.InsertResponse)
 	switch response.Type {
 	case messages.SUCCESS:
-		fmt.Printf("(%d, %s) successfully inserted\n", c.Int64("key"), c.String("value"))
+		fmt.Printf("(%d, %s) successfully inserted\n", c.Int64(commandInsertFlagKey), c.String(commandInsertFlagValue))
 	case messages.KEY_ALREADY_EXISTS:
-		panic(fmt.Sprintf("Tree already contains key %d", c.Int64("key")))
+		panic(fmt.Sprintf("Tree already contains key %d", c.Int64(commandInsertFlagKey)))
 	case messages.ACCESS_DENIED:
 		panic("Invalid credentials")
 	case messages.NO_SUCH_TREE:
@@ -98,16 +103,16 @@ func commandActionInsert(c *cli.Context) error {
 	return nil
 }
 
-func commandActionSearch(c *cli.Context) error {
-	if !c.IsSet("key") {
+func commandSearchAction(c *cli.Context) error {
+	if !c.IsSet(commandSearchFlagKey) {
 		panic("Missing key.")
 	}
-	if !c.GlobalIsSet(globalFlagNameId) || !c.GlobalIsSet(globalFlagNameToken) {
+	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
 		panic("Missing credentials.")
 	}
-	remote.Start(c.GlobalString(globalFlagNameBind))
+	remote.Start(c.GlobalString(globalFlagBind))
 	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagNameRemote),
+		c.GlobalString(globalFlagRemote),
 		"remote",
 		"treeservice",
 		timeout,
@@ -120,10 +125,10 @@ func commandActionSearch(c *cli.Context) error {
 		pid,
 		&messages.SearchRequest{
 			Credentials: &messages.Credentials{
-				Token: c.GlobalString(globalFlagNameToken),
-				Id:    c.GlobalInt64(globalFlagNameId),
+				Token: c.GlobalString(globalFlagToken),
+				Id:    c.GlobalInt64(globalFlagId),
 			},
-			Key: c.Int64("key"),
+			Key: c.Int64(commandSearchFlagKey),
 		},
 		timeout,
 	).Result()
@@ -133,9 +138,9 @@ func commandActionSearch(c *cli.Context) error {
 	response := res.(*messages.SearchResponse)
 	switch response.Type {
 	case messages.SUCCESS:
-		fmt.Printf("Value for key %d: %s\n", c.Int64("key"), response.Value)
+		fmt.Printf("Value for key %d: %s\n", c.Int64(commandSearchFlagKey), response.Value)
 	case messages.NO_SUCH_KEY:
-		panic(fmt.Sprintf("Tree contains no key %d", c.Int64("key")))
+		panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandSearchFlagKey)))
 	case messages.ACCESS_DENIED:
 		panic("Invalid credentials")
 	case messages.NO_SUCH_TREE:
@@ -150,56 +155,56 @@ func main() {
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  globalFlagNameBind,
+			Name:  globalFlagBind,
 			Usage: "address treecli should use",
 			Value: "treecli.actors:8091",
 		},
 		cli.StringFlag{
-			Name:  globalFlagNameRemote,
+			Name:  globalFlagRemote,
 			Usage: "address of the treeservice",
 			Value: "treeservice.actors:8090",
 		},
 		cli.Int64Flag{
-			Name:  globalFlagNameId,
+			Name:  globalFlagId,
 			Usage: "id of the tree you want to alter",
 		},
 		cli.StringFlag{
-			Name:  globalFlagNameToken,
+			Name:  globalFlagToken,
 			Usage: "token to authorize your access for the specified tree",
 		},
 	}
 	app.Commands = []cli.Command{
 		{
-			Name: commandNameCreatetree,
+			Name: commandCreatetreeName,
 			Flags: []cli.Flag{
 				cli.Int64Flag{
-					Name:  "maxsize",
+					Name:  commandCreatetreeFlagMaxsize,
 					Usage: "max size of a leaf",
 					Value: 2,
 				},
 			},
-			Action: commandActionCreatetree,
+			Action: commandCreatetreeAction,
 		},
 		{
-			Name: commandNameInsert,
+			Name: commandInsertName,
 			Flags: []cli.Flag{
 				cli.Int64Flag{
 					Name: commandInsertFlagKey,
 				},
 				cli.StringFlag{
-					Name: "value",
+					Name: commandInsertFlagValue,
 				},
 			},
-			Action: commandActionInsert,
+			Action: commandInsertAction,
 		},
 		{
-			Name: commandNameSearch,
+			Name: commandSearchName,
 			Flags: []cli.Flag{
 				cli.Int64Flag{
-					Name: "key",
+					Name: commandSearchFlagKey,
 				},
 			},
-			Action: commandActionSearch,
+			Action: commandSearchAction,
 		},
 	}
 	_ = app.Run(os.Args)
