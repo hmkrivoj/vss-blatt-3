@@ -29,7 +29,7 @@ const commandInsertFlagValue = "value"
 
 const commandSearchFlagKey = "key"
 
-func commandCreatetreeAction(c *cli.Context) error {
+func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
 	remote.Start(c.GlobalString(globalFlagBind))
 	pidResp, err := remote.SpawnNamed(
 		c.GlobalString(globalFlagRemote),
@@ -41,6 +41,11 @@ func commandCreatetreeAction(c *cli.Context) error {
 		panic(err)
 	}
 	pid := pidResp.Pid
+	return pid
+}
+
+func commandCreatetreeAction(c *cli.Context) error {
+	pid := spawnRemoteFromCliContext(c)
 	res, err := actor.EmptyRootContext.RequestFuture(
 		pid,
 		&messages.CreateTreeRequest{MaxSize: c.Int64(commandCreatetreeFlagMaxsize)},
@@ -61,17 +66,7 @@ func commandInsertAction(c *cli.Context) error {
 	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
 		panic("Missing credentials.")
 	}
-	remote.Start(c.GlobalString(globalFlagBind))
-	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagRemote),
-		"remote",
-		"treeservice",
-		timeout,
-	)
-	if err != nil {
-		panic(err)
-	}
-	pid := pidResp.Pid
+	pid := spawnRemoteFromCliContext(c)
 	res, err := actor.EmptyRootContext.RequestFuture(
 		pid,
 		&messages.InsertRequest{
@@ -110,17 +105,7 @@ func commandSearchAction(c *cli.Context) error {
 	if !c.GlobalIsSet(globalFlagId) || !c.GlobalIsSet(globalFlagToken) {
 		panic("Missing credentials.")
 	}
-	remote.Start(c.GlobalString(globalFlagBind))
-	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagRemote),
-		"remote",
-		"treeservice",
-		timeout,
-	)
-	if err != nil {
-		panic(err)
-	}
-	pid := pidResp.Pid
+	pid := spawnRemoteFromCliContext(c)
 	res, err := actor.EmptyRootContext.RequestFuture(
 		pid,
 		&messages.SearchRequest{
