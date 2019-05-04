@@ -19,14 +19,13 @@ const globalFlagId = "id"
 const globalFlagToken = "token"
 
 const commandCreatetreeName = "createtree"
-const commandInsertName = "insert"
-const commandSearchName = "search"
-
 const commandCreatetreeFlagMaxsize = "maxsize"
 
+const commandInsertName = "insert"
 const commandInsertFlagKey = "key"
 const commandInsertFlagValue = "value"
 
+const commandSearchName = "search"
 const commandSearchFlagKey = "key"
 
 func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
