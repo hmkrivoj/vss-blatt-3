@@ -47,6 +47,15 @@ message SearchResponse {
     Type type = 3;
 }
 
+message TraverseRequest {
+    Credentials credentials = 1;
+}
+
+message TraverseResponse {
+    repeated int64 keys = 1;
+    repeated int64 values = 2;
+}
+
 
 enum Type {
     SUCCESS = 0;
