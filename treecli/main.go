@@ -85,8 +85,10 @@ func commandInsertAction(c *cli.Context) error {
 				Token: c.GlobalString(globalFlagToken),
 				Id:    c.GlobalInt64(globalFlagID),
 			},
-			Key:   c.Int64(commandInsertFlagKey),
-			Value: c.String(commandInsertFlagValue),
+			Item: &messages.Item{
+				Key:   c.Int64(commandInsertFlagKey),
+				Value: c.String(commandInsertFlagValue),
+			},
 		},
 	)
 	switch msg := res.(type) {
@@ -129,7 +131,7 @@ func commandSearchAction(c *cli.Context) error {
 	case *messages.SearchResponse:
 		switch msg.Type {
 		case messages.SUCCESS:
-			fmt.Printf("Value for key %d: %s\n", c.Int64(commandSearchFlagKey), msg.Value)
+			fmt.Printf("Value for key %d: %s\n", msg.Item.Key, msg.Item.Value)
 		case messages.NO_SUCH_KEY:
 			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandSearchFlagKey)))
 		case messages.ACCESS_DENIED:
