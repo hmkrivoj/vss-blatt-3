@@ -72,6 +72,17 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 			)
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
+	case *messages.TraverseRequest:
+		if _, exists := state.trees[msg.Credentials.Id]; !exists {
+			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
+			context.Respond(&messages.TraverseResponse{Type: messages.NO_SUCH_TREE})
+			return
+		}
+		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
+			context.Respond(&messages.TraverseResponse{Type: messages.ACCESS_DENIED})
+		} else {
+			context.Forward(state.trees[msg.Credentials.Id])
+		}
 	}
 }
 
