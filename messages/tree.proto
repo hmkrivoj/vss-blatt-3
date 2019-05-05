@@ -6,6 +6,11 @@ message Credentials {
     string token = 2;
 }
 
+message Item {
+    int64 key = 1;
+    string value = 2;
+}
+
 message CreateTreeRequest {
     int64 maxSize = 1;
 }
@@ -16,13 +21,12 @@ message CreateTreeResponse {
 
 message InsertRequest {
     Credentials credentials = 1;
-    int64 key = 2;
-    string value = 3;
+    Item item = 2;
 }
 
 message InsertResponse {
-    int64 key = 1;
-    Type type = 3;
+    Item item = 1;
+    Type type = 2;
 }
 
 message DeleteRequest {
@@ -31,7 +35,7 @@ message DeleteRequest {
 }
 
 message DeleteResponse {
-    int64 key = 1;
+    Item item = 1;
     bool success = 2;
     Type type = 3;
 }
@@ -42,9 +46,8 @@ message SearchRequest {
 }
 
 message SearchResponse {
-    int64 key = 1;
-    string value = 2;
-    Type type = 3;
+    Item item = 1;
+    Type type = 2;
 }
 
 message TraverseRequest {
@@ -52,8 +55,7 @@ message TraverseRequest {
 }
 
 message TraverseResponse {
-    repeated int64 keys = 1;
-    repeated int64 values = 2;
+    repeated Item items = 1;
 }
 
 
