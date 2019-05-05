@@ -31,6 +31,8 @@ const commandSearchFlagKey = "key"
 const commandDeleteName = "delete"
 const commandDeleteFlagKey = "key"
 
+const commandTraverseName = "traverse"
+
 func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
 	remote.Start(c.GlobalString(globalFlagBind))
 	pidResp, err := remote.SpawnNamed(
@@ -160,16 +162,46 @@ func commandDeleteAction(c *cli.Context) error {
 				Token: c.GlobalString(globalFlagToken),
 				Id:    c.GlobalInt64(globalFlagID),
 			},
-			Key: c.Int64(commandSearchFlagKey),
+			Key: c.Int64(commandDeleteFlagKey),
 		},
 	)
 	switch msg := res.(type) {
 	case *messages.DeleteResponse:
 		switch msg.Type {
 		case messages.SUCCESS:
-			fmt.Printf("Successfully deleted key %d from tree\n", c.Int64(commandSearchFlagKey))
+			fmt.Printf("Successfully deleted key %d from tree\n", c.Int64(commandDeleteFlagKey))
 		case messages.NO_SUCH_KEY:
-			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandSearchFlagKey)))
+			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandDeleteFlagKey)))
+		case messages.ACCESS_DENIED:
+			panic("Invalid credentials")
+		case messages.NO_SUCH_TREE:
+			panic("No such tree")
+		default:
+			panic("Unknown response type")
+		}
+	default:
+		panic("Wrong message type")
+	}
+	return nil
+}
+
+func commandTraverseAction(c *cli.Context) error {
+	handleCredentialsFromCliContext(c)
+	pid := spawnRemoteFromCliContext(c)
+	res := requestResult(
+		pid,
+		&messages.TraverseRequest{
+			Credentials: &messages.Credentials{
+				Token: c.GlobalString(globalFlagToken),
+				Id:    c.GlobalInt64(globalFlagID),
+			},
+		},
+	)
+	switch msg := res.(type) {
+	case *messages.TraverseResponse:
+		switch msg.Type {
+		case messages.SUCCESS:
+			fmt.Printf("%q\n", msg.Items)
 		case messages.ACCESS_DENIED:
 			panic("Invalid credentials")
 		case messages.NO_SUCH_TREE:
@@ -246,6 +278,10 @@ func main() {
 				},
 			},
 			Action: commandDeleteAction,
+		},
+		{
+			Name:   commandTraverseName,
+			Action: commandTraverseAction,
 		},
 	}
 	_ = app.Run(os.Args)
