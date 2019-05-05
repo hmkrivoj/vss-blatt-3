@@ -43,8 +43,7 @@ func (state *nodeActor) leaf(context actor.Context) {
 			}
 			state.behaviour.Become(state.internalNode)
 		}
-	case messages.MultiInsert:
-		log.Printf("multiinsert %q", msg.Items)
+	case *messages.MultiInsert:
 		for _, item := range msg.Items {
 			state.content[int(item.Key)] = item.Value
 		}
