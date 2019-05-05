@@ -3,6 +3,7 @@ package tree
 import (
 	"log"
 	"sort"
+	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/ob-vss-ss19/blatt-3-forever_alone/messages"
@@ -60,6 +61,8 @@ func (state *nodeActor) leaf(context actor.Context) {
 		} else {
 			context.Respond(&messages.DeleteResponse{Type: messages.NO_SUCH_KEY})
 		}
+	case *messages.TraverseRequest:
+		context.Respond(&messages.TraverseResponse{Items: itemsSortedByKeys(state.content)})
 	}
 }
 
@@ -88,6 +91,34 @@ func (state *nodeActor) internalNode(context actor.Context) {
 		} else {
 			context.Forward(state.left)
 		}
+	case *messages.TraverseRequest:
+		leftFuture := context.RequestFuture(state.left, &messages.TraverseRequest{}, 5*time.Second)
+		rightFuture := context.RequestFuture(state.right, &messages.TraverseRequest{}, 5*time.Second)
+		context.AwaitFuture(leftFuture, func(resLeft interface{}, errLeft error) {
+			if errLeft != nil {
+				panic(errLeft)
+			}
+			switch msgLeft := resLeft.(type) {
+			case *messages.TraverseResponse:
+				context.AwaitFuture(rightFuture, func(resRight interface{}, errRight error) {
+					if errRight != nil {
+						panic(errRight)
+					}
+					switch msgRight := resRight.(type) {
+					case *messages.TraverseResponse:
+						items := append(msgLeft.Items, msgRight.Items...)
+						sort.Slice(items, func(i, j int) bool {
+							return items[i].Key < items[j].Key
+						})
+						context.Respond(&messages.TraverseResponse{Items: items})
+					default:
+						panic("Wrong message from right child")
+					}
+				})
+			default:
+				panic("Wrong message from left child")
+			}
+		})
 	}
 }
 
