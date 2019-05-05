@@ -25,8 +25,7 @@ message InsertRequest {
 }
 
 message InsertResponse {
-    Item item = 1;
-    Type type = 2;
+    Type type = 1;
 }
 
 message DeleteRequest {
@@ -35,9 +34,7 @@ message DeleteRequest {
 }
 
 message DeleteResponse {
-    Item item = 1;
-    bool success = 2;
-    Type type = 3;
+    Type type = 1;
 }
 
 message SearchRequest {
@@ -56,6 +53,7 @@ message TraverseRequest {
 
 message TraverseResponse {
     repeated Item items = 1;
+    Type type = 2;
 }
 
 
