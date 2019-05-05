@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-const timeout = 5 * time.Second
+const timeout = 60 * time.Second
 
 const globalFlagBind = "bind"
 const globalFlagRemote = "remote"
@@ -201,7 +201,10 @@ func commandTraverseAction(c *cli.Context) error {
 	case *messages.TraverseResponse:
 		switch msg.Type {
 		case messages.SUCCESS:
-			fmt.Printf("%q\n", msg.Items)
+			for _, item := range msg.Items {
+				fmt.Printf("(%d, %s), ", item.Key, item.Value)
+			}
+			fmt.Println()
 		case messages.ACCESS_DENIED:
 			panic("Invalid credentials")
 		case messages.NO_SUCH_TREE:
