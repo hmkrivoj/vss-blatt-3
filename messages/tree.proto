@@ -28,6 +28,10 @@ message InsertResponse {
     Type type = 1;
 }
 
+message MultiInsert {
+    repeated Item items = 1;
+}
+
 message DeleteRequest {
     Credentials credentials = 1;
     int64 key = 2;
