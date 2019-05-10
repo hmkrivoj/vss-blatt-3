@@ -130,7 +130,7 @@ func NodeActorProducer() actor.Actor {
 
 func createLeaf(context actor.Context, maxsize int64, items []*messages.Item) *actor.PID {
 	pid := context.Spawn(actor.PropsFromProducer(NodeActorProducer))
-	context.Send(pid, &messages.CreateTreeRequest{MaxSize: int64(maxsize)})
+	context.Send(pid, &messages.CreateTreeRequest{MaxSize: maxsize})
 	context.Send(pid, &messages.MultiInsert{Items: items})
 	return pid
 }
