@@ -92,10 +92,9 @@ func (state *nodeActor) internalNode(context actor.Context) {
 			context.Forward(state.left)
 		}
 	case *messages.TraverseRequest:
-		leftFuture := context.RequestFuture(state.left, &messages.TraverseRequest{}, 60*time.Second)
-		rightFuture := context.RequestFuture(state.right, &messages.TraverseRequest{}, 60*time.Second)
+		leftFuture := context.RequestFuture(state.left, &messages.TraverseRequest{}, 5*time.Second)
+		rightFuture := context.RequestFuture(state.right, &messages.TraverseRequest{}, 5*time.Second)
 		context.AwaitFuture(leftFuture, func(resLeft interface{}, errLeft error) {
-			time.Sleep(30 * time.Second) // TODO remove
 			if errLeft != nil {
 				panic(errLeft)
 			}
