@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
@@ -66,8 +67,6 @@ func commandCreatetreeAction(c *cli.Context) error {
 	pid := spawnRemoteFromCliContext(c)
 	res := requestResult(pid, &messages.CreateTreeRequest{MaxSize: c.Int64(commandCreatetreeFlagMaxsize)})
 	switch response := res.(type) {
-	case *messages.CreateTreeResponse:
-		fmt.Printf("id: %d, token: %s\n", response.Credentials.Id, response.Credentials.Token)
 	default:
 		panic("Wrong message type")
 	}
@@ -94,19 +93,6 @@ func commandInsertAction(c *cli.Context) error {
 		},
 	)
 	switch msg := res.(type) {
-	case *messages.InsertResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			fmt.Printf("(%d, %s) successfully inserted\n", c.Int64(commandInsertFlagKey), c.String(commandInsertFlagValue))
-		case messages.KEY_ALREADY_EXISTS:
-			panic(fmt.Sprintf("Tree already contains key %d", c.Int64(commandInsertFlagKey)))
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
 	default:
 		panic("Wrong message type")
 	}
@@ -130,19 +116,6 @@ func commandSearchAction(c *cli.Context) error {
 		},
 	)
 	switch msg := res.(type) {
-	case *messages.SearchResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			fmt.Printf("Value for key %d: %s\n", msg.Item.Key, msg.Item.Value)
-		case messages.NO_SUCH_KEY:
-			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandSearchFlagKey)))
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
 	default:
 		panic("Wrong message type")
 	}
@@ -166,19 +139,7 @@ func commandDeleteAction(c *cli.Context) error {
 		},
 	)
 	switch msg := res.(type) {
-	case *messages.DeleteResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			fmt.Printf("Successfully deleted key %d from tree\n", c.Int64(commandDeleteFlagKey))
-		case messages.NO_SUCH_KEY:
-			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandDeleteFlagKey)))
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
+
 	default:
 		panic("Wrong message type")
 	}
@@ -198,27 +159,50 @@ func commandTraverseAction(c *cli.Context) error {
 		},
 	)
 	switch msg := res.(type) {
-	case *messages.TraverseResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			for _, item := range msg.Items {
-				fmt.Printf("(%d, %s), ", item.Key, item.Value)
-			}
-			fmt.Println()
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
+
 	default:
 		panic("Wrong message type")
 	}
 	return nil
 }
 
+type treeCliActor struct {
+	wg sync.WaitGroup
+}
+
+func (*treeCliActor) Receive(c actor.Context) {
+	switch msg := c.Message().(type) {
+	case *messages.NoSuchTreeError:
+		panic(fmt.Sprintf("No tree with id %d", msg.Id))
+	case *messages.NoSuchKeyError:
+		panic(fmt.Sprintf("Tree contains no key %d", msg.Key))
+	case *messages.InvalidTokenError:
+		panic(fmt.Sprintf("Invalid token %s for tree %d", msg.Credentials.Token, msg.Credentials.Id))
+	case *messages.KeyAlreadyExistsError:
+		panic(fmt.Sprintf("Tree already contains item (%d, %s)", msg.Item.Key, msg.Item.Value))
+	case *messages.CreateTreeResponse:
+		fmt.Printf("id: %d, token: %s\n", msg.Credentials.Id, msg.Credentials.Token)
+	case *messages.InsertResponse:
+		fmt.Printf("(%d, %s) successfully inserted\n", msg.Item.Key, msg.Item.Value)
+	case *messages.SearchResponse:
+		fmt.Printf("Found item (%d, %s)\n", msg.Item.Key, msg.Item.Value)
+	case *messages.DeleteResponse:
+		fmt.Printf("Successfully deleted item (%d, %s) from tree\n", msg.Item.Key, msg.Item.Value)
+	case *messages.TraverseResponse:
+		for _, item := range msg.Items {
+			fmt.Printf("(%d, %s), ", item.Key, item.Value)
+		}
+		fmt.Println()
+	default:
+		panic("Unknown response type")
+	}
+}
+
 func main() {
+	props := actor.PropsFromProducer(func() actor.Actor {
+		myActor := treeCliActor{wg: sync.WaitGroup{}}
+		return &myActor
+	})
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -287,5 +271,6 @@ func main() {
 			Action: commandTraverseAction,
 		},
 	}
+	app.Setup()
 	_ = app.Run(os.Args)
 }
