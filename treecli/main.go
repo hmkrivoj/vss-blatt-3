@@ -15,25 +15,8 @@ import (
 
 const timeout = 60 * time.Second
 
-const globalFlagBind = "bind, b"
-const globalFlagRemote = "remote, r"
 const globalFlagID = "id, i"
 const globalFlagToken = "token, t"
-
-func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
-	remote.Start(c.GlobalString(globalFlagBind))
-	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagRemote),
-		"remote",
-		"treeservice",
-		timeout,
-	)
-	if err != nil {
-		panic(err)
-	}
-	pid := pidResp.Pid
-	return pid
-}
 
 func handleCredentialsFromCliContext(c *cli.Context) {
 	if !c.GlobalIsSet(globalFlagID) || !c.GlobalIsSet(globalFlagToken) {
@@ -72,22 +55,31 @@ func (*treeCliActor) Receive(c actor.Context) {
 }
 
 func main() {
-	rootContext := actor.EmptyRootContext
-	props := actor.PropsFromProducer(func() actor.Actor {
-		myActor := treeCliActor{wg: sync.WaitGroup{}}
-		return &myActor
-	})
+	var rootContext = actor.EmptyRootContext
+	var wg sync.WaitGroup
+	var bindAddr, remoteAddr string
+	var pid, remotePid *actor.PID
+
 	app := cli.NewApp()
+	app.Author = "Dimitri Krivoj"
+	app.Email = "krivoj@hm.edu"
+	app.Version = "1.0.0"
+	app.Name = "treecli"
+	app.Usage = "communication with treeservice"
+	app.UsageText = "treecli [global options] command [arguments...]"
+
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  globalFlagBind,
-			Usage: "address treecli should use",
-			Value: "treecli.actors:8091",
+			Name:        "bind, b",
+			Usage:       "address treecli should use",
+			Value:       "treecli.actors:8091",
+			Destination: &bindAddr,
 		},
 		cli.StringFlag{
-			Name:  globalFlagRemote,
-			Usage: "address of the treeservice",
-			Value: "treeservice.actors:8090",
+			Name:        "remote, r",
+			Usage:       "address of the treeservice",
+			Value:       "treeservice.actors:8090",
+			Destination: &remoteAddr,
 		},
 		cli.Int64Flag{
 			Name:  globalFlagID,
@@ -98,17 +90,36 @@ func main() {
 			Usage: "token to authorize your access for the specified tree",
 		},
 	}
+
+	app.Before = func(c *cli.Context) error {
+		remote.Start(bindAddr)
+		props := actor.PropsFromProducer(func() actor.Actor {
+			myActor := treeCliActor{wg: wg}
+			return &myActor
+		})
+		pidResp, err := remote.SpawnNamed(
+			remoteAddr,
+			"remote",
+			"treeservice",
+			timeout,
+		)
+		if err == nil {
+			remotePid = pidResp.Pid
+			pid = rootContext.Spawn(props)
+		}
+		return err
+	}
+
 	app.Commands = []cli.Command{
 		{
-			Name:      "createtree",
+			Name:      "create",
 			ArgsUsage: "[maxSize]",
 			Action: func(c *cli.Context) {
 				maxSize, err := strconv.ParseInt(c.Args().First(), 10, 64)
 				if err != nil {
 					maxSize = 2
 				}
-				pid := rootContext.Spawn(props)
-				remotePid := spawnRemoteFromCliContext(c)
+				wg.Add(1)
 				rootContext.RequestWithCustomSender(
 					remotePid,
 					&messages.CreateTreeRequest{
@@ -116,6 +127,7 @@ func main() {
 					},
 					pid,
 				)
+				wg.Wait()
 			},
 		},
 		{
@@ -128,8 +140,7 @@ func main() {
 				}
 				value := c.Args().Tail()[0]
 				handleCredentialsFromCliContext(c)
-				pid := rootContext.Spawn(props)
-				remotePid := spawnRemoteFromCliContext(c)
+				wg.Add(1)
 				rootContext.RequestWithCustomSender(
 					remotePid,
 					&messages.RequestWithCredentials{
@@ -148,6 +159,7 @@ func main() {
 					},
 					pid,
 				)
+				wg.Wait()
 			},
 		},
 		{
@@ -159,8 +171,7 @@ func main() {
 					panic(err)
 				}
 				handleCredentialsFromCliContext(c)
-				remotePid := spawnRemoteFromCliContext(c)
-				pid := rootContext.Spawn(props)
+				wg.Add(1)
 				rootContext.RequestWithCustomSender(
 					remotePid,
 					&messages.RequestWithCredentials{
@@ -176,6 +187,7 @@ func main() {
 					},
 					pid,
 				)
+				wg.Wait()
 			},
 		},
 		{
@@ -187,8 +199,7 @@ func main() {
 					panic(err)
 				}
 				handleCredentialsFromCliContext(c)
-				remotePid := spawnRemoteFromCliContext(c)
-				pid := rootContext.Spawn(props)
+				wg.Add(1)
 				rootContext.RequestWithCustomSender(
 					remotePid,
 					&messages.RequestWithCredentials{
@@ -204,14 +215,14 @@ func main() {
 					},
 					pid,
 				)
+				wg.Wait()
 			},
 		},
 		{
 			Name: "traverse",
 			Action: func(c *cli.Context) {
 				handleCredentialsFromCliContext(c)
-				remotePid := spawnRemoteFromCliContext(c)
-				pid := rootContext.Spawn(props)
+				wg.Add(1)
 				rootContext.RequestWithCustomSender(
 					remotePid,
 					&messages.RequestWithCredentials{
@@ -219,18 +230,13 @@ func main() {
 							Token: c.GlobalString(globalFlagToken),
 							Id:    c.GlobalInt64(globalFlagID),
 						},
-						Request: &messages.RequestWithCredentials_Traverse{&messages.TraverseRequest{}},
+						Request: &messages.RequestWithCredentials_Traverse{Traverse: &messages.TraverseRequest{}},
 					},
 					pid,
 				)
+				wg.Wait()
 			},
 		},
 	}
-	app.Author = "Dimitri Krivoj"
-	app.Email = "krivoj@hm.edu"
-	app.Version = "1.0.0"
-	app.Name = "treecli"
-	app.Usage = "communication with treeservice"
-	app.UsageText = "treecli [global options] command [arguments...]"
 	_ = app.Run(os.Args)
 }
