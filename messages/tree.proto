@@ -1,16 +1,6 @@
 syntax = "proto3";
 package messages;
 
-message RequestWithCredentials {
-    Credentials credentials = 1;
-    oneof request {
-        InsertRequest insert = 11;
-        SearchRequest search = 12;
-        DeleteRequest delete = 13;
-        TraverseRequest traverse = 14;
-    }
-}
-
 message NoSuchTreeError {
     int64 id = 1;
 }
@@ -46,7 +36,8 @@ message CreateTreeResponse {
 }
 
 message InsertRequest {
-    Item item = 1;
+    Credentials credentials = 1;
+    Item item = 2;
 }
 
 message InsertResponse {
@@ -58,7 +49,8 @@ message MultiInsert {
 }
 
 message DeleteRequest {
-    int64 key = 1;
+    Credentials credentials = 1;
+    int64 key = 2;
 }
 
 message DeleteResponse {
@@ -66,7 +58,8 @@ message DeleteResponse {
 }
 
 message SearchRequest {
-    int64 key = 1;
+    Credentials credentials = 1;
+    int64 key = 2;
 }
 
 message SearchResponse {
@@ -74,6 +67,7 @@ message SearchResponse {
 }
 
 message TraverseRequest {
+    Credentials credentials = 1;
 }
 
 message TraverseResponse {

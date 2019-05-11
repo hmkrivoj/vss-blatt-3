@@ -28,11 +28,11 @@ func (state *nodeActor) leaf(context actor.Context) {
 		log.Printf("%s created", context.Self().Id)
 	case *messages.InsertRequest:
 		log.Printf("%s receives (%d, %s)", context.Self().Id, msg.Item.Key, msg.Item.Value)
-		if _, exists := state.content[int(msg.Item.Key)]; exists {
-			context.Respond(&messages.InsertResponse{Type: messages.KEY_ALREADY_EXISTS})
+		if value, exists := state.content[int(msg.Item.Key)]; exists {
+			context.Respond(&messages.KeyAlreadyExistsError{Item: &messages.Item{Key: msg.Item.Key, Value: value}})
 		} else {
 			state.content[int(msg.Item.Key)] = msg.Item.Value
-			context.Respond(&messages.InsertResponse{Type: messages.SUCCESS})
+			context.Respond(&messages.InsertResponse{Item: msg.Item})
 		}
 		if len(state.content) > state.maxSize {
 			itemsLeft, maxLeftSideKey, itemsRight := split(state.content)
@@ -50,16 +50,16 @@ func (state *nodeActor) leaf(context actor.Context) {
 		}
 	case *messages.SearchRequest:
 		if value, exists := state.content[int(msg.Key)]; exists {
-			context.Respond(&messages.SearchResponse{Item: &messages.Item{Key: msg.Key, Value: value}, Type: messages.SUCCESS})
+			context.Respond(&messages.SearchResponse{Item: &messages.Item{Key: msg.Key, Value: value}})
 		} else {
-			context.Respond(&messages.SearchResponse{Type: messages.NO_SUCH_KEY})
+			context.Respond(&messages.NoSuchKeyError{Key: msg.Key})
 		}
 	case *messages.DeleteRequest:
-		if _, exists := state.content[int(msg.Key)]; exists {
+		if value, exists := state.content[int(msg.Key)]; exists {
 			delete(state.content, int(msg.Key))
-			context.Respond(&messages.DeleteResponse{Type: messages.SUCCESS})
+			context.Respond(&messages.DeleteResponse{Item: &messages.Item{Key: msg.Key, Value: value}})
 		} else {
-			context.Respond(&messages.DeleteResponse{Type: messages.NO_SUCH_KEY})
+			context.Respond(&messages.NoSuchKeyError{Key: msg.Key})
 		}
 	case *messages.TraverseRequest:
 		context.Respond(&messages.TraverseResponse{Items: itemsSortedByKeys(state.content)})
@@ -68,9 +68,6 @@ func (state *nodeActor) leaf(context actor.Context) {
 
 func (state *nodeActor) internalNode(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case *actor.PoisonPill:
-		context.Poison(state.left)
-		context.Poison(state.right)
 	case *messages.InsertRequest:
 		if int(msg.Item.Key) > state.maxLeftSideKey {
 			log.Printf("%s forwards (%d, %s) to righthand child", context.Self().Id, msg.Item.Key, msg.Item.Value)

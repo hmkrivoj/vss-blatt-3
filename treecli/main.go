@@ -15,8 +15,8 @@ import (
 
 const timeout = 60 * time.Second
 
-const globalFlagID = "id, i"
-const globalFlagToken = "token, t"
+const globalFlagID = "id"
+const globalFlagToken = "token"
 
 func handleCredentialsFromCliContext(c *cli.Context) {
 	if !c.GlobalIsSet(globalFlagID) || !c.GlobalIsSet(globalFlagToken) {
@@ -24,33 +24,50 @@ func handleCredentialsFromCliContext(c *cli.Context) {
 	}
 }
 
-type treeCliActor struct {
-	wg sync.WaitGroup
+func requestAndWait(context *actor.RootContext, wg *sync.WaitGroup, remotePid *actor.PID, pid *actor.PID, message interface{}) {
+	wg.Add(1)
+	context.RequestWithCustomSender(remotePid, message, pid)
+	wg.Wait()
 }
 
-func (*treeCliActor) Receive(c actor.Context) {
+type treeCliActor struct {
+	wg *sync.WaitGroup
+}
+
+func (state *treeCliActor) Receive(c actor.Context) {
 	switch msg := c.Message().(type) {
 	case *messages.NoSuchTreeError:
-		panic(fmt.Sprintf("No tree with id %d", msg.Id))
+		c.Stop(c.Self())
+		fmt.Printf("No tree with id %d", msg.Id)
 	case *messages.NoSuchKeyError:
-		panic(fmt.Sprintf("Tree contains no key %d", msg.Key))
+		c.Stop(c.Self())
+		fmt.Printf("Tree contains no key %d", msg.Key)
 	case *messages.InvalidTokenError:
-		panic(fmt.Sprintf("Invalid token %s for tree %d", msg.Credentials.Token, msg.Credentials.Id))
+		c.Stop(c.Self())
+		fmt.Printf("Invalid token %s for tree %d", msg.Credentials.Token, msg.Credentials.Id)
 	case *messages.KeyAlreadyExistsError:
-		panic(fmt.Sprintf("Tree already contains item (%d, %s)", msg.Item.Key, msg.Item.Value))
+		c.Stop(c.Self())
+		fmt.Printf("Tree already contains item (%d, %s)", msg.Item.Key, msg.Item.Value)
 	case *messages.CreateTreeResponse:
+		c.Stop(c.Self())
 		fmt.Printf("id: %d, token: %s\n", msg.Credentials.Id, msg.Credentials.Token)
 	case *messages.InsertResponse:
+		c.Stop(c.Self())
 		fmt.Printf("(%d, %s) successfully inserted\n", msg.Item.Key, msg.Item.Value)
 	case *messages.SearchResponse:
+		c.Stop(c.Self())
 		fmt.Printf("Found item (%d, %s)\n", msg.Item.Key, msg.Item.Value)
 	case *messages.DeleteResponse:
+		c.Stop(c.Self())
 		fmt.Printf("Successfully deleted item (%d, %s) from tree\n", msg.Item.Key, msg.Item.Value)
 	case *messages.TraverseResponse:
 		for _, item := range msg.Items {
 			fmt.Printf("(%d, %s), ", item.Key, item.Value)
 		}
+		c.Stop(c.Self())
 		fmt.Println()
+	case *actor.Stopped:
+		state.wg.Done()
 	}
 }
 
@@ -70,13 +87,13 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:        "bind, b",
+			Name:        "bind",
 			Usage:       "address treecli should use",
 			Value:       "treecli.actors:8091",
 			Destination: &bindAddr,
 		},
 		cli.StringFlag{
-			Name:        "remote, r",
+			Name:        "remote",
 			Usage:       "address of the treeservice",
 			Value:       "treeservice.actors:8090",
 			Destination: &remoteAddr,
@@ -94,7 +111,7 @@ func main() {
 	app.Before = func(c *cli.Context) error {
 		remote.Start(bindAddr)
 		props := actor.PropsFromProducer(func() actor.Actor {
-			myActor := treeCliActor{wg: wg}
+			myActor := treeCliActor{wg: &wg}
 			return &myActor
 		})
 		pidResp, err := remote.SpawnNamed(
@@ -119,15 +136,7 @@ func main() {
 				if err != nil {
 					maxSize = 2
 				}
-				wg.Add(1)
-				rootContext.RequestWithCustomSender(
-					remotePid,
-					&messages.CreateTreeRequest{
-						MaxSize: maxSize,
-					},
-					pid,
-				)
-				wg.Wait()
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.CreateTreeRequest{MaxSize: maxSize})
 			},
 		},
 		{
@@ -140,26 +149,16 @@ func main() {
 				}
 				value := c.Args().Tail()[0]
 				handleCredentialsFromCliContext(c)
-				wg.Add(1)
-				rootContext.RequestWithCustomSender(
-					remotePid,
-					&messages.RequestWithCredentials{
-						Credentials: &messages.Credentials{
-							Token: c.GlobalString(globalFlagToken),
-							Id:    c.GlobalInt64(globalFlagID),
-						},
-						Request: &messages.RequestWithCredentials_Insert{
-							Insert: &messages.InsertRequest{
-								Item: &messages.Item{
-									Key:   key,
-									Value: value,
-								},
-							},
-						},
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.InsertRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
 					},
-					pid,
-				)
-				wg.Wait()
+					Item: &messages.Item{
+						Key:   key,
+						Value: value,
+					},
+				})
 			},
 		},
 		{
@@ -171,23 +170,13 @@ func main() {
 					panic(err)
 				}
 				handleCredentialsFromCliContext(c)
-				wg.Add(1)
-				rootContext.RequestWithCustomSender(
-					remotePid,
-					&messages.RequestWithCredentials{
-						Credentials: &messages.Credentials{
-							Token: c.GlobalString(globalFlagToken),
-							Id:    c.GlobalInt64(globalFlagID),
-						},
-						Request: &messages.RequestWithCredentials_Search{
-							Search: &messages.SearchRequest{
-								Key: key,
-							},
-						},
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.SearchRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
 					},
-					pid,
-				)
-				wg.Wait()
+					Key: key,
+				})
 			},
 		},
 		{
@@ -199,42 +188,25 @@ func main() {
 					panic(err)
 				}
 				handleCredentialsFromCliContext(c)
-				wg.Add(1)
-				rootContext.RequestWithCustomSender(
-					remotePid,
-					&messages.RequestWithCredentials{
-						Credentials: &messages.Credentials{
-							Token: c.GlobalString(globalFlagToken),
-							Id:    c.GlobalInt64(globalFlagID),
-						},
-						Request: &messages.RequestWithCredentials_Delete{
-							Delete: &messages.DeleteRequest{
-								Key: key,
-							},
-						},
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.DeleteRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
 					},
-					pid,
-				)
-				wg.Wait()
+					Key: key,
+				})
 			},
 		},
 		{
 			Name: "traverse",
 			Action: func(c *cli.Context) {
 				handleCredentialsFromCliContext(c)
-				wg.Add(1)
-				rootContext.RequestWithCustomSender(
-					remotePid,
-					&messages.RequestWithCredentials{
-						Credentials: &messages.Credentials{
-							Token: c.GlobalString(globalFlagToken),
-							Id:    c.GlobalInt64(globalFlagID),
-						},
-						Request: &messages.RequestWithCredentials_Traverse{Traverse: &messages.TraverseRequest{}},
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.TraverseRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
 					},
-					pid,
-				)
-				wg.Wait()
+				})
 			},
 		},
 	}
