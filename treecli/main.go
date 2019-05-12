@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
+	"strconv"
+	"sync"
 	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
@@ -13,40 +15,8 @@ import (
 
 const timeout = 60 * time.Second
 
-const globalFlagBind = "bind"
-const globalFlagRemote = "remote"
 const globalFlagID = "id"
 const globalFlagToken = "token"
-
-const commandCreatetreeName = "createtree"
-const commandCreatetreeFlagMaxsize = "maxsize"
-
-const commandInsertName = "insert"
-const commandInsertFlagKey = "key"
-const commandInsertFlagValue = "value"
-
-const commandSearchName = "search"
-const commandSearchFlagKey = "key"
-
-const commandDeleteName = "delete"
-const commandDeleteFlagKey = "key"
-
-const commandTraverseName = "traverse"
-
-func spawnRemoteFromCliContext(c *cli.Context) *actor.PID {
-	remote.Start(c.GlobalString(globalFlagBind))
-	pidResp, err := remote.SpawnNamed(
-		c.GlobalString(globalFlagRemote),
-		"remote",
-		"treeservice",
-		timeout,
-	)
-	if err != nil {
-		panic(err)
-	}
-	pid := pidResp.Pid
-	return pid
-}
 
 func handleCredentialsFromCliContext(c *cli.Context) {
 	if !c.GlobalIsSet(globalFlagID) || !c.GlobalIsSet(globalFlagToken) {
@@ -54,182 +24,85 @@ func handleCredentialsFromCliContext(c *cli.Context) {
 	}
 }
 
-func requestResult(pid *actor.PID, message interface{}) interface{} {
-	result, err := actor.EmptyRootContext.RequestFuture(pid, message, timeout).Result()
-	if err != nil {
-		panic(err)
-	}
-	return result
+func requestAndWait(
+	context *actor.RootContext,
+	wg *sync.WaitGroup,
+	remotePid *actor.PID,
+	pid *actor.PID,
+	message interface{},
+) {
+	wg.Add(1)
+	context.RequestWithCustomSender(remotePid, message, pid)
+	wg.Wait()
 }
 
-func commandCreatetreeAction(c *cli.Context) error {
-	pid := spawnRemoteFromCliContext(c)
-	res := requestResult(pid, &messages.CreateTreeRequest{MaxSize: c.Int64(commandCreatetreeFlagMaxsize)})
-	switch response := res.(type) {
+type treeCliActor struct {
+	wg *sync.WaitGroup
+}
+
+func (state *treeCliActor) Receive(c actor.Context) {
+	switch msg := c.Message().(type) {
+	case *messages.NoSuchTreeError:
+		c.Stop(c.Self())
+		log.Printf("No tree with id %d", msg.Id)
+	case *messages.NoSuchKeyError:
+		c.Stop(c.Self())
+		log.Printf("Tree contains no key %d", msg.Key)
+	case *messages.InvalidTokenError:
+		c.Stop(c.Self())
+		log.Printf("Invalid token %s for tree %d", msg.Credentials.Token, msg.Credentials.Id)
+	case *messages.KeyAlreadyExistsError:
+		c.Stop(c.Self())
+		log.Printf("Tree already contains item (%d, %s)", msg.Item.Key, msg.Item.Value)
 	case *messages.CreateTreeResponse:
-		fmt.Printf("id: %d, token: %s\n", response.Credentials.Id, response.Credentials.Token)
-	default:
-		panic("Wrong message type")
-	}
-	return nil
-}
-
-func commandInsertAction(c *cli.Context) error {
-	if !c.IsSet(commandInsertFlagKey) || !c.IsSet(commandInsertFlagValue) {
-		panic("Missing key or value.")
-	}
-	handleCredentialsFromCliContext(c)
-	pid := spawnRemoteFromCliContext(c)
-	res := requestResult(
-		pid,
-		&messages.InsertRequest{
-			Credentials: &messages.Credentials{
-				Token: c.GlobalString(globalFlagToken),
-				Id:    c.GlobalInt64(globalFlagID),
-			},
-			Item: &messages.Item{
-				Key:   c.Int64(commandInsertFlagKey),
-				Value: c.String(commandInsertFlagValue),
-			},
-		},
-	)
-	switch msg := res.(type) {
+		c.Stop(c.Self())
+		log.Printf("id: %d, token: %s", msg.Credentials.Id, msg.Credentials.Token)
 	case *messages.InsertResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			fmt.Printf("(%d, %s) successfully inserted\n", c.Int64(commandInsertFlagKey), c.String(commandInsertFlagValue))
-		case messages.KEY_ALREADY_EXISTS:
-			panic(fmt.Sprintf("Tree already contains key %d", c.Int64(commandInsertFlagKey)))
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
-	default:
-		panic("Wrong message type")
-	}
-	return nil
-}
-
-func commandSearchAction(c *cli.Context) error {
-	if !c.IsSet(commandSearchFlagKey) {
-		panic("Missing key.")
-	}
-	handleCredentialsFromCliContext(c)
-	pid := spawnRemoteFromCliContext(c)
-	res := requestResult(
-		pid,
-		&messages.SearchRequest{
-			Credentials: &messages.Credentials{
-				Token: c.GlobalString(globalFlagToken),
-				Id:    c.GlobalInt64(globalFlagID),
-			},
-			Key: c.Int64(commandSearchFlagKey),
-		},
-	)
-	switch msg := res.(type) {
+		c.Stop(c.Self())
+		log.Printf("(%d, %s) successfully inserted", msg.Item.Key, msg.Item.Value)
 	case *messages.SearchResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			fmt.Printf("Value for key %d: %s\n", msg.Item.Key, msg.Item.Value)
-		case messages.NO_SUCH_KEY:
-			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandSearchFlagKey)))
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
-	default:
-		panic("Wrong message type")
-	}
-	return nil
-}
-
-func commandDeleteAction(c *cli.Context) error {
-	if !c.IsSet(commandDeleteFlagKey) {
-		panic("Missing key.")
-	}
-	handleCredentialsFromCliContext(c)
-	pid := spawnRemoteFromCliContext(c)
-	res := requestResult(
-		pid,
-		&messages.DeleteRequest{
-			Credentials: &messages.Credentials{
-				Token: c.GlobalString(globalFlagToken),
-				Id:    c.GlobalInt64(globalFlagID),
-			},
-			Key: c.Int64(commandDeleteFlagKey),
-		},
-	)
-	switch msg := res.(type) {
+		c.Stop(c.Self())
+		log.Printf("Found item (%d, %s)", msg.Item.Key, msg.Item.Value)
 	case *messages.DeleteResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			fmt.Printf("Successfully deleted key %d from tree\n", c.Int64(commandDeleteFlagKey))
-		case messages.NO_SUCH_KEY:
-			panic(fmt.Sprintf("Tree contains no key %d", c.Int64(commandDeleteFlagKey)))
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
-		}
-	default:
-		panic("Wrong message type")
-	}
-	return nil
-}
-
-func commandTraverseAction(c *cli.Context) error {
-	handleCredentialsFromCliContext(c)
-	pid := spawnRemoteFromCliContext(c)
-	res := requestResult(
-		pid,
-		&messages.TraverseRequest{
-			Credentials: &messages.Credentials{
-				Token: c.GlobalString(globalFlagToken),
-				Id:    c.GlobalInt64(globalFlagID),
-			},
-		},
-	)
-	switch msg := res.(type) {
+		c.Stop(c.Self())
+		log.Printf("Successfully deleted item (%d, %s) from tree", msg.Item.Key, msg.Item.Value)
 	case *messages.TraverseResponse:
-		switch msg.Type {
-		case messages.SUCCESS:
-			for _, item := range msg.Items {
-				fmt.Printf("(%d, %s), ", item.Key, item.Value)
-			}
-			fmt.Println()
-		case messages.ACCESS_DENIED:
-			panic("Invalid credentials")
-		case messages.NO_SUCH_TREE:
-			panic("No such tree")
-		default:
-			panic("Unknown response type")
+		for _, item := range msg.Items {
+			log.Printf("(%d, %s)", item.Key, item.Value)
 		}
-	default:
-		panic("Wrong message type")
+		c.Stop(c.Self())
+		log.Println()
+	case *actor.Stopped:
+		state.wg.Done()
 	}
-	return nil
 }
 
 func main() {
+	var rootContext = actor.EmptyRootContext
+	var wg sync.WaitGroup
+	var bindAddr, remoteAddr string
+	var pid, remotePid *actor.PID
+
 	app := cli.NewApp()
+	app.Author = "Dimitri Krivoj"
+	app.Email = "krivoj@hm.edu"
+	app.Version = "1.0.0"
+	app.Name = "treecli"
+	app.Usage = "communication with treeservice"
+	app.UsageText = "treecli [global options] command [arguments...]"
+
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  globalFlagBind,
-			Usage: "address treecli should use",
-			Value: "treecli.actors:8091",
+			Name:        "bind",
+			Usage:       "address treecli should use",
+			Value:       "treecli.actors:8091",
+			Destination: &bindAddr,
 		},
 		cli.StringFlag{
-			Name:  globalFlagRemote,
-			Usage: "address of the treeservice",
-			Value: "treeservice.actors:8090",
+			Name:        "remote",
+			Usage:       "address of the treeservice",
+			Value:       "treeservice.actors:8090",
+			Destination: &remoteAddr,
 		},
 		cli.Int64Flag{
 			Name:  globalFlagID,
@@ -240,51 +113,107 @@ func main() {
 			Usage: "token to authorize your access for the specified tree",
 		},
 	}
+
+	app.Before = func(c *cli.Context) error {
+		remote.Start(bindAddr)
+		props := actor.PropsFromProducer(func() actor.Actor {
+			myActor := treeCliActor{wg: &wg}
+			return &myActor
+		})
+		pidResp, err := remote.SpawnNamed(
+			remoteAddr,
+			"remote",
+			"treeservice",
+			timeout,
+		)
+		if err == nil {
+			remotePid = pidResp.Pid
+			pid = rootContext.Spawn(props)
+		}
+		return err
+	}
+
 	app.Commands = []cli.Command{
 		{
-			Name: commandCreatetreeName,
-			Flags: []cli.Flag{
-				cli.Int64Flag{
-					Name:  commandCreatetreeFlagMaxsize,
-					Usage: "max size of a leaf",
-					Value: 2,
-				},
+			Name:      "create",
+			ArgsUsage: "[maxSize]",
+			Action: func(c *cli.Context) {
+				maxSize, err := strconv.ParseInt(c.Args().First(), 10, 64)
+				if err != nil {
+					maxSize = 2
+				}
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.CreateTreeRequest{MaxSize: maxSize})
 			},
-			Action: commandCreatetreeAction,
 		},
 		{
-			Name: commandInsertName,
-			Flags: []cli.Flag{
-				cli.Int64Flag{
-					Name: commandInsertFlagKey,
-				},
-				cli.StringFlag{
-					Name: commandInsertFlagValue,
-				},
+			Name:      "insert",
+			ArgsUsage: "key value",
+			Action: func(c *cli.Context) {
+				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
+				if err != nil {
+					panic(err)
+				}
+				value := c.Args().Tail()[0]
+				handleCredentialsFromCliContext(c)
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.InsertRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
+					},
+					Item: &messages.Item{
+						Key:   key,
+						Value: value,
+					},
+				})
 			},
-			Action: commandInsertAction,
 		},
 		{
-			Name: commandSearchName,
-			Flags: []cli.Flag{
-				cli.Int64Flag{
-					Name: commandSearchFlagKey,
-				},
+			Name:      "search",
+			ArgsUsage: "key",
+			Action: func(c *cli.Context) {
+				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
+				if err != nil {
+					panic(err)
+				}
+				handleCredentialsFromCliContext(c)
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.SearchRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
+					},
+					Key: key,
+				})
 			},
-			Action: commandSearchAction,
 		},
 		{
-			Name: commandDeleteName,
-			Flags: []cli.Flag{
-				cli.Int64Flag{
-					Name: commandDeleteFlagKey,
-				},
+			Name:      "delete",
+			ArgsUsage: "key",
+			Action: func(c *cli.Context) {
+				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
+				if err != nil {
+					panic(err)
+				}
+				handleCredentialsFromCliContext(c)
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.DeleteRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
+					},
+					Key: key,
+				})
 			},
-			Action: commandDeleteAction,
 		},
 		{
-			Name:   commandTraverseName,
-			Action: commandTraverseAction,
+			Name: "traverse",
+			Action: func(c *cli.Context) {
+				handleCredentialsFromCliContext(c)
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.TraverseRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
+					},
+				})
+			},
 		},
 	}
 	_ = app.Run(os.Args)

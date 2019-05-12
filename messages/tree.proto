@@ -1,6 +1,22 @@
 syntax = "proto3";
 package messages;
 
+message NoSuchTreeError {
+    int64 id = 1;
+}
+
+message InvalidTokenError {
+    Credentials credentials = 1;
+}
+
+message NoSuchKeyError {
+    int64 key = 1;
+}
+
+message KeyAlreadyExistsError {
+    Item item = 1;
+}
+
 message Credentials {
     int64 id = 1;
     string token = 2;
@@ -25,7 +41,7 @@ message InsertRequest {
 }
 
 message InsertResponse {
-    Type type = 1;
+    Item item = 2;
 }
 
 message MultiInsert {
@@ -38,7 +54,7 @@ message DeleteRequest {
 }
 
 message DeleteResponse {
-    Type type = 1;
+    Item item = 1;
 }
 
 message SearchRequest {
@@ -48,7 +64,6 @@ message SearchRequest {
 
 message SearchResponse {
     Item item = 1;
-    Type type = 2;
 }
 
 message TraverseRequest {
@@ -57,14 +72,4 @@ message TraverseRequest {
 
 message TraverseResponse {
     repeated Item items = 1;
-    Type type = 2;
-}
-
-
-enum Type {
-    SUCCESS = 0;
-    KEY_ALREADY_EXISTS = 1;
-    NO_SUCH_KEY = 2;
-    ACCESS_DENIED = 3;
-    NO_SUCH_TREE = 4;
 }

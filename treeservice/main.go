@@ -37,34 +37,36 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 	case *messages.SearchRequest:
 		if _, exists := state.trees[msg.Credentials.Id]; !exists {
 			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
-			context.Respond(&messages.SearchResponse{Type: messages.NO_SUCH_TREE})
+			context.Respond(&messages.NoSuchTreeError{Id: msg.Credentials.Id})
 			return
 		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(&messages.SearchResponse{Type: messages.ACCESS_DENIED})
+			fmt.Printf("Invalid credentials... treeservice denies access.\n")
+			context.Respond(&messages.InvalidTokenError{Credentials: msg.Credentials})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	case *messages.DeleteRequest:
 		if _, exists := state.trees[msg.Credentials.Id]; !exists {
 			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
-			context.Respond(&messages.DeleteResponse{Type: messages.NO_SUCH_TREE})
+			context.Respond(&messages.NoSuchTreeError{Id: msg.Credentials.Id})
 			return
 		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(&messages.DeleteResponse{Type: messages.ACCESS_DENIED})
+			fmt.Printf("Invalid credentials... treeservice denies access.\n")
+			context.Respond(&messages.InvalidTokenError{Credentials: msg.Credentials})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
 	case *messages.InsertRequest:
 		if _, exists := state.trees[msg.Credentials.Id]; !exists {
 			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
-			context.Respond(&messages.InsertResponse{Type: messages.NO_SUCH_TREE})
+			context.Respond(&messages.NoSuchTreeError{Id: msg.Credentials.Id})
 			return
 		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
 			fmt.Printf("Invalid credentials... treeservice denies access.\n")
-			context.Respond(&messages.InsertResponse{Type: messages.ACCESS_DENIED})
+			context.Respond(&messages.InvalidTokenError{Credentials: msg.Credentials})
 		} else {
 			fmt.Printf(
 				"Valid credentials... treeservice forwards insertrequest to %v.\n",
@@ -75,11 +77,12 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 	case *messages.TraverseRequest:
 		if _, exists := state.trees[msg.Credentials.Id]; !exists {
 			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
-			context.Respond(&messages.TraverseResponse{Type: messages.NO_SUCH_TREE})
+			context.Respond(&messages.NoSuchTreeError{Id: msg.Credentials.Id})
 			return
 		}
 		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
-			context.Respond(&messages.TraverseResponse{Type: messages.ACCESS_DENIED})
+			fmt.Printf("Invalid credentials... treeservice denies access.\n")
+			context.Respond(&messages.InvalidTokenError{Credentials: msg.Credentials})
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}

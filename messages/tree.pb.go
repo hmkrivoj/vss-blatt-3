@@ -9,7 +9,6 @@ import (
 	io "io"
 	math "math"
 	reflect "reflect"
-	strconv "strconv"
 	strings "strings"
 )
 
@@ -24,34 +23,176 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
-type Type int32
-
-const (
-	SUCCESS            Type = 0
-	KEY_ALREADY_EXISTS Type = 1
-	NO_SUCH_KEY        Type = 2
-	ACCESS_DENIED      Type = 3
-	NO_SUCH_TREE       Type = 4
-)
-
-var Type_name = map[int32]string{
-	0: "SUCCESS",
-	1: "KEY_ALREADY_EXISTS",
-	2: "NO_SUCH_KEY",
-	3: "ACCESS_DENIED",
-	4: "NO_SUCH_TREE",
+type NoSuchTreeError struct {
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
-var Type_value = map[string]int32{
-	"SUCCESS":            0,
-	"KEY_ALREADY_EXISTS": 1,
-	"NO_SUCH_KEY":        2,
-	"ACCESS_DENIED":      3,
-	"NO_SUCH_TREE":       4,
-}
-
-func (Type) EnumDescriptor() ([]byte, []int) {
+func (m *NoSuchTreeError) Reset()      { *m = NoSuchTreeError{} }
+func (*NoSuchTreeError) ProtoMessage() {}
+func (*NoSuchTreeError) Descriptor() ([]byte, []int) {
 	return fileDescriptor_cb3889276909882a, []int{0}
+}
+func (m *NoSuchTreeError) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *NoSuchTreeError) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_NoSuchTreeError.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *NoSuchTreeError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NoSuchTreeError.Merge(m, src)
+}
+func (m *NoSuchTreeError) XXX_Size() int {
+	return m.Size()
+}
+func (m *NoSuchTreeError) XXX_DiscardUnknown() {
+	xxx_messageInfo_NoSuchTreeError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NoSuchTreeError proto.InternalMessageInfo
+
+func (m *NoSuchTreeError) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+type InvalidTokenError struct {
+	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
+}
+
+func (m *InvalidTokenError) Reset()      { *m = InvalidTokenError{} }
+func (*InvalidTokenError) ProtoMessage() {}
+func (*InvalidTokenError) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{1}
+}
+func (m *InvalidTokenError) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InvalidTokenError) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InvalidTokenError.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InvalidTokenError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InvalidTokenError.Merge(m, src)
+}
+func (m *InvalidTokenError) XXX_Size() int {
+	return m.Size()
+}
+func (m *InvalidTokenError) XXX_DiscardUnknown() {
+	xxx_messageInfo_InvalidTokenError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InvalidTokenError proto.InternalMessageInfo
+
+func (m *InvalidTokenError) GetCredentials() *Credentials {
+	if m != nil {
+		return m.Credentials
+	}
+	return nil
+}
+
+type NoSuchKeyError struct {
+	Key int64 `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`
+}
+
+func (m *NoSuchKeyError) Reset()      { *m = NoSuchKeyError{} }
+func (*NoSuchKeyError) ProtoMessage() {}
+func (*NoSuchKeyError) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{2}
+}
+func (m *NoSuchKeyError) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *NoSuchKeyError) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_NoSuchKeyError.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *NoSuchKeyError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NoSuchKeyError.Merge(m, src)
+}
+func (m *NoSuchKeyError) XXX_Size() int {
+	return m.Size()
+}
+func (m *NoSuchKeyError) XXX_DiscardUnknown() {
+	xxx_messageInfo_NoSuchKeyError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NoSuchKeyError proto.InternalMessageInfo
+
+func (m *NoSuchKeyError) GetKey() int64 {
+	if m != nil {
+		return m.Key
+	}
+	return 0
+}
+
+type KeyAlreadyExistsError struct {
+	Item *Item `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+}
+
+func (m *KeyAlreadyExistsError) Reset()      { *m = KeyAlreadyExistsError{} }
+func (*KeyAlreadyExistsError) ProtoMessage() {}
+func (*KeyAlreadyExistsError) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cb3889276909882a, []int{3}
+}
+func (m *KeyAlreadyExistsError) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *KeyAlreadyExistsError) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_KeyAlreadyExistsError.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *KeyAlreadyExistsError) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_KeyAlreadyExistsError.Merge(m, src)
+}
+func (m *KeyAlreadyExistsError) XXX_Size() int {
+	return m.Size()
+}
+func (m *KeyAlreadyExistsError) XXX_DiscardUnknown() {
+	xxx_messageInfo_KeyAlreadyExistsError.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_KeyAlreadyExistsError proto.InternalMessageInfo
+
+func (m *KeyAlreadyExistsError) GetItem() *Item {
+	if m != nil {
+		return m.Item
+	}
+	return nil
 }
 
 type Credentials struct {
@@ -62,7 +203,7 @@ type Credentials struct {
 func (m *Credentials) Reset()      { *m = Credentials{} }
 func (*Credentials) ProtoMessage() {}
 func (*Credentials) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{0}
+	return fileDescriptor_cb3889276909882a, []int{4}
 }
 func (m *Credentials) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -113,7 +254,7 @@ type Item struct {
 func (m *Item) Reset()      { *m = Item{} }
 func (*Item) ProtoMessage() {}
 func (*Item) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{1}
+	return fileDescriptor_cb3889276909882a, []int{5}
 }
 func (m *Item) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -163,7 +304,7 @@ type CreateTreeRequest struct {
 func (m *CreateTreeRequest) Reset()      { *m = CreateTreeRequest{} }
 func (*CreateTreeRequest) ProtoMessage() {}
 func (*CreateTreeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{2}
+	return fileDescriptor_cb3889276909882a, []int{6}
 }
 func (m *CreateTreeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -206,7 +347,7 @@ type CreateTreeResponse struct {
 func (m *CreateTreeResponse) Reset()      { *m = CreateTreeResponse{} }
 func (*CreateTreeResponse) ProtoMessage() {}
 func (*CreateTreeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{3}
+	return fileDescriptor_cb3889276909882a, []int{7}
 }
 func (m *CreateTreeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -250,7 +391,7 @@ type InsertRequest struct {
 func (m *InsertRequest) Reset()      { *m = InsertRequest{} }
 func (*InsertRequest) ProtoMessage() {}
 func (*InsertRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{4}
+	return fileDescriptor_cb3889276909882a, []int{8}
 }
 func (m *InsertRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -294,13 +435,13 @@ func (m *InsertRequest) GetItem() *Item {
 }
 
 type InsertResponse struct {
-	Type Type `protobuf:"varint,1,opt,name=type,proto3,enum=messages.Type" json:"type,omitempty"`
+	Item *Item `protobuf:"bytes,2,opt,name=item,proto3" json:"item,omitempty"`
 }
 
 func (m *InsertResponse) Reset()      { *m = InsertResponse{} }
 func (*InsertResponse) ProtoMessage() {}
 func (*InsertResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{5}
+	return fileDescriptor_cb3889276909882a, []int{9}
 }
 func (m *InsertResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -329,11 +470,11 @@ func (m *InsertResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_InsertResponse proto.InternalMessageInfo
 
-func (m *InsertResponse) GetType() Type {
+func (m *InsertResponse) GetItem() *Item {
 	if m != nil {
-		return m.Type
+		return m.Item
 	}
-	return SUCCESS
+	return nil
 }
 
 type MultiInsert struct {
@@ -343,7 +484,7 @@ type MultiInsert struct {
 func (m *MultiInsert) Reset()      { *m = MultiInsert{} }
 func (*MultiInsert) ProtoMessage() {}
 func (*MultiInsert) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{6}
+	return fileDescriptor_cb3889276909882a, []int{10}
 }
 func (m *MultiInsert) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -387,7 +528,7 @@ type DeleteRequest struct {
 func (m *DeleteRequest) Reset()      { *m = DeleteRequest{} }
 func (*DeleteRequest) ProtoMessage() {}
 func (*DeleteRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{7}
+	return fileDescriptor_cb3889276909882a, []int{11}
 }
 func (m *DeleteRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -431,13 +572,13 @@ func (m *DeleteRequest) GetKey() int64 {
 }
 
 type DeleteResponse struct {
-	Type Type `protobuf:"varint,1,opt,name=type,proto3,enum=messages.Type" json:"type,omitempty"`
+	Item *Item `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
 }
 
 func (m *DeleteResponse) Reset()      { *m = DeleteResponse{} }
 func (*DeleteResponse) ProtoMessage() {}
 func (*DeleteResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{8}
+	return fileDescriptor_cb3889276909882a, []int{12}
 }
 func (m *DeleteResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -466,11 +607,11 @@ func (m *DeleteResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DeleteResponse proto.InternalMessageInfo
 
-func (m *DeleteResponse) GetType() Type {
+func (m *DeleteResponse) GetItem() *Item {
 	if m != nil {
-		return m.Type
+		return m.Item
 	}
-	return SUCCESS
+	return nil
 }
 
 type SearchRequest struct {
@@ -481,7 +622,7 @@ type SearchRequest struct {
 func (m *SearchRequest) Reset()      { *m = SearchRequest{} }
 func (*SearchRequest) ProtoMessage() {}
 func (*SearchRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{9}
+	return fileDescriptor_cb3889276909882a, []int{13}
 }
 func (m *SearchRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -526,13 +667,12 @@ func (m *SearchRequest) GetKey() int64 {
 
 type SearchResponse struct {
 	Item *Item `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	Type Type  `protobuf:"varint,2,opt,name=type,proto3,enum=messages.Type" json:"type,omitempty"`
 }
 
 func (m *SearchResponse) Reset()      { *m = SearchResponse{} }
 func (*SearchResponse) ProtoMessage() {}
 func (*SearchResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{10}
+	return fileDescriptor_cb3889276909882a, []int{14}
 }
 func (m *SearchResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -568,13 +708,6 @@ func (m *SearchResponse) GetItem() *Item {
 	return nil
 }
 
-func (m *SearchResponse) GetType() Type {
-	if m != nil {
-		return m.Type
-	}
-	return SUCCESS
-}
-
 type TraverseRequest struct {
 	Credentials *Credentials `protobuf:"bytes,1,opt,name=credentials,proto3" json:"credentials,omitempty"`
 }
@@ -582,7 +715,7 @@ type TraverseRequest struct {
 func (m *TraverseRequest) Reset()      { *m = TraverseRequest{} }
 func (*TraverseRequest) ProtoMessage() {}
 func (*TraverseRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{11}
+	return fileDescriptor_cb3889276909882a, []int{15}
 }
 func (m *TraverseRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -620,13 +753,12 @@ func (m *TraverseRequest) GetCredentials() *Credentials {
 
 type TraverseResponse struct {
 	Items []*Item `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-	Type  Type    `protobuf:"varint,2,opt,name=type,proto3,enum=messages.Type" json:"type,omitempty"`
 }
 
 func (m *TraverseResponse) Reset()      { *m = TraverseResponse{} }
 func (*TraverseResponse) ProtoMessage() {}
 func (*TraverseResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cb3889276909882a, []int{12}
+	return fileDescriptor_cb3889276909882a, []int{16}
 }
 func (m *TraverseResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -662,15 +794,11 @@ func (m *TraverseResponse) GetItems() []*Item {
 	return nil
 }
 
-func (m *TraverseResponse) GetType() Type {
-	if m != nil {
-		return m.Type
-	}
-	return SUCCESS
-}
-
 func init() {
-	proto.RegisterEnum("messages.Type", Type_name, Type_value)
+	proto.RegisterType((*NoSuchTreeError)(nil), "messages.NoSuchTreeError")
+	proto.RegisterType((*InvalidTokenError)(nil), "messages.InvalidTokenError")
+	proto.RegisterType((*NoSuchKeyError)(nil), "messages.NoSuchKeyError")
+	proto.RegisterType((*KeyAlreadyExistsError)(nil), "messages.KeyAlreadyExistsError")
 	proto.RegisterType((*Credentials)(nil), "messages.Credentials")
 	proto.RegisterType((*Item)(nil), "messages.Item")
 	proto.RegisterType((*CreateTreeRequest)(nil), "messages.CreateTreeRequest")
@@ -689,46 +817,133 @@ func init() {
 func init() { proto.RegisterFile("tree.proto", fileDescriptor_cb3889276909882a) }
 
 var fileDescriptor_cb3889276909882a = []byte{
-	// 488 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
-	0x14, 0xf4, 0x3a, 0x2e, 0x85, 0x67, 0xe2, 0xba, 0x2b, 0x40, 0x39, 0xad, 0xaa, 0x15, 0x87, 0x0a,
-	0x89, 0x1c, 0xda, 0x4a, 0x9c, 0x83, 0xb3, 0x12, 0xa1, 0xb4, 0x48, 0xb6, 0x2b, 0x35, 0x15, 0x92,
-	0x65, 0x9a, 0x27, 0xb0, 0xea, 0x7c, 0xb0, 0xbb, 0xa9, 0x08, 0x27, 0x7e, 0x02, 0x3f, 0x83, 0x9f,
-	0xc2, 0x31, 0xc7, 0x1e, 0x89, 0x73, 0xe1, 0xd8, 0x9f, 0x80, 0xec, 0xd8, 0x4d, 0x0e, 0x80, 0x0a,
-	0x11, 0x37, 0x3f, 0xbd, 0x99, 0x79, 0x33, 0x3b, 0x92, 0x01, 0xb4, 0x44, 0x6c, 0x8e, 0xe4, 0x50,
-	0x0f, 0xe9, 0xdd, 0x3e, 0x2a, 0x15, 0xbf, 0x43, 0xc5, 0xf7, 0xc1, 0xf6, 0x24, 0xf6, 0x70, 0xa0,
-	0x93, 0x38, 0x55, 0xd4, 0x01, 0x33, 0xe9, 0x35, 0xc8, 0x0e, 0xd9, 0xad, 0xf9, 0x66, 0xd2, 0xa3,
-	0x0f, 0x60, 0x43, 0x0f, 0x2f, 0x70, 0xd0, 0x30, 0x77, 0xc8, 0xee, 0x3d, 0x7f, 0x31, 0xf0, 0x26,
-	0x58, 0x1d, 0x8d, 0x7d, 0xea, 0x42, 0xed, 0x02, 0x27, 0x25, 0x3c, 0xff, 0xcc, 0xf1, 0x97, 0x71,
-	0x3a, 0xc6, 0x0a, 0x5f, 0x0c, 0xfc, 0x29, 0x6c, 0x7b, 0x12, 0x63, 0x8d, 0xa1, 0x44, 0xf4, 0xf1,
-	0xc3, 0x18, 0x95, 0xa6, 0x0d, 0xd8, 0xec, 0xc7, 0x1f, 0x83, 0xe4, 0x13, 0x96, 0x02, 0xd5, 0xc8,
-	0x8f, 0x80, 0xae, 0xc2, 0xd5, 0x68, 0x38, 0x50, 0x48, 0x9f, 0x81, 0x7d, 0xbe, 0x74, 0x5a, 0x70,
-	0xec, 0xbd, 0x87, 0xcd, 0x2a, 0x49, 0x73, 0x25, 0x86, 0xbf, 0x8a, 0xe4, 0x29, 0xd4, 0x3b, 0x03,
-	0x85, 0x52, 0x57, 0x97, 0xff, 0x55, 0x89, 0x72, 0xb0, 0x12, 0x8d, 0xfd, 0x22, 0x9c, 0xbd, 0xe7,
-	0x2c, 0x19, 0xf9, 0x6b, 0xf8, 0xc5, 0x8e, 0x1f, 0x80, 0x53, 0x5d, 0x2b, 0x8d, 0x73, 0xb0, 0xf4,
-	0x64, 0xb4, 0x48, 0xe9, 0xac, 0xb2, 0xc2, 0xc9, 0x08, 0xfd, 0x62, 0x97, 0xd7, 0x70, 0x34, 0x4e,
-	0x75, 0xb2, 0xa0, 0xd2, 0xc7, 0xb0, 0x91, 0x8b, 0xe5, 0xde, 0x6a, 0xbf, 0xb8, 0xb4, 0x58, 0xf2,
-	0x33, 0xa8, 0xb7, 0x31, 0x45, 0x8d, 0x6b, 0x07, 0x2b, 0x8b, 0x34, 0x6f, 0x8a, 0xcc, 0x63, 0x54,
-	0xda, 0x7f, 0x11, 0xe3, 0x0c, 0xea, 0x01, 0xc6, 0xf2, 0xfc, 0xfd, 0x7f, 0x70, 0x74, 0x0a, 0x4e,
-	0xa5, 0xbd, 0x74, 0x54, 0xd4, 0x41, 0x7e, 0x5f, 0xc7, 0x8d, 0x6b, 0xf3, 0x0f, 0xae, 0x5f, 0xc2,
-	0x56, 0x28, 0xe3, 0x4b, 0x94, 0x6a, 0xed, 0x97, 0xe4, 0x6f, 0xc0, 0x5d, 0x6a, 0x95, 0x3e, 0x6f,
-	0xd5, 0xe6, 0x6d, 0x9c, 0x3e, 0x89, 0xc1, 0xca, 0x27, 0x6a, 0xc3, 0x66, 0x70, 0xe2, 0x79, 0x22,
-	0x08, 0x5c, 0x83, 0x3e, 0x02, 0x7a, 0x28, 0xba, 0x51, 0xeb, 0x95, 0x2f, 0x5a, 0xed, 0x6e, 0x24,
-	0x4e, 0x3b, 0x41, 0x18, 0xb8, 0x84, 0x6e, 0x81, 0x7d, 0xfc, 0x3a, 0x0a, 0x4e, 0xbc, 0x17, 0xd1,
-	0xa1, 0xe8, 0xba, 0x26, 0xdd, 0x86, 0x7a, 0xab, 0x20, 0x45, 0x6d, 0x71, 0xdc, 0x11, 0x6d, 0xb7,
-	0x46, 0x5d, 0xb8, 0x5f, 0x61, 0x42, 0x5f, 0x08, 0xd7, 0x7a, 0x7e, 0x30, 0x9d, 0x31, 0xe3, 0x6a,
-	0xc6, 0x8c, 0xeb, 0x19, 0x23, 0x9f, 0x33, 0x46, 0xbe, 0x66, 0x8c, 0x7c, 0xcb, 0x18, 0x99, 0x66,
-	0x8c, 0x7c, 0xcf, 0x18, 0xf9, 0x91, 0x31, 0xe3, 0x3a, 0x63, 0xe4, 0xcb, 0x9c, 0x19, 0xd3, 0x39,
-	0x33, 0xae, 0xe6, 0xcc, 0x78, 0x7b, 0xa7, 0xf8, 0xaf, 0xec, 0xff, 0x0c, 0x00, 0x00, 0xff, 0xff,
-	0x3a, 0x03, 0x8f, 0xcf, 0x65, 0x04, 0x00, 0x00,
+	// 449 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xbb, 0x6e, 0x13, 0x41,
+	0x14, 0xdd, 0x59, 0x27, 0x3c, 0xee, 0xca, 0x9b, 0x64, 0x45, 0x24, 0x57, 0xa3, 0x30, 0xa2, 0x48,
+	0xc3, 0x16, 0xd8, 0x12, 0x48, 0x54, 0x10, 0x52, 0x98, 0x10, 0x8a, 0xb5, 0xab, 0x74, 0x83, 0xf7,
+	0x8a, 0x8c, 0xb2, 0x8f, 0x30, 0x33, 0x6b, 0x65, 0xa9, 0xf8, 0x04, 0x3e, 0x83, 0x4f, 0xa1, 0x74,
+	0xe9, 0x12, 0xaf, 0x1b, 0x4a, 0x7f, 0x02, 0xda, 0x17, 0x6b, 0x19, 0x64, 0x19, 0x5b, 0x74, 0x7b,
+	0xf7, 0x9e, 0x7b, 0xce, 0xb9, 0x67, 0x46, 0x03, 0xa0, 0x25, 0xa2, 0x7b, 0x2b, 0x63, 0x1d, 0x3b,
+	0x0f, 0x42, 0x54, 0x8a, 0x7f, 0x44, 0xc5, 0x1e, 0xc3, 0xc1, 0xfb, 0x78, 0x90, 0x8c, 0xae, 0x87,
+	0x12, 0xf1, 0x5c, 0xca, 0x58, 0x3a, 0x36, 0x98, 0xc2, 0xef, 0x90, 0x13, 0x72, 0xda, 0xf2, 0x4c,
+	0xe1, 0xb3, 0x77, 0x70, 0xd4, 0x8f, 0xc6, 0x3c, 0x10, 0xfe, 0x30, 0xbe, 0xc1, 0xa8, 0x04, 0x3d,
+	0x07, 0x6b, 0x24, 0xd1, 0xc7, 0x48, 0x0b, 0x1e, 0xa8, 0x02, 0x6d, 0x3d, 0x3b, 0x76, 0x6b, 0x5e,
+	0xf7, 0xac, 0x69, 0x7a, 0xcb, 0x48, 0xc6, 0xc0, 0x2e, 0x05, 0x2f, 0x30, 0x2d, 0xa9, 0x0e, 0xa1,
+	0x75, 0x83, 0x69, 0x25, 0x98, 0x7f, 0xb2, 0x97, 0x70, 0x7c, 0x81, 0xe9, 0xab, 0x40, 0x22, 0xf7,
+	0xd3, 0xf3, 0x3b, 0xa1, 0xb4, 0x2a, 0xa1, 0x0c, 0xf6, 0x84, 0xc6, 0xb0, 0x92, 0xb3, 0x1b, 0xb9,
+	0xbe, 0xc6, 0xd0, 0x2b, 0x7a, 0xac, 0x0b, 0xd6, 0x92, 0xf8, 0xea, 0x36, 0xce, 0x23, 0xd8, 0xd7,
+	0xf9, 0x1a, 0x1d, 0xf3, 0x84, 0x9c, 0x3e, 0xf4, 0xca, 0x82, 0xb9, 0xb0, 0x97, 0x53, 0xfc, 0xe9,
+	0x25, 0xc7, 0x8f, 0x79, 0x90, 0x60, 0x8d, 0x2f, 0x0a, 0xf6, 0x14, 0x8e, 0xce, 0x24, 0x72, 0x8d,
+	0x79, 0x6c, 0x1e, 0x7e, 0x4a, 0x50, 0x69, 0xa7, 0x03, 0xf7, 0x43, 0x7e, 0x37, 0x10, 0x9f, 0xb1,
+	0x22, 0xa8, 0x4b, 0x76, 0x09, 0xce, 0x32, 0x5c, 0xdd, 0xc6, 0x91, 0xc2, 0xed, 0x33, 0x0c, 0xa0,
+	0xdd, 0x8f, 0x14, 0x4a, 0x5d, 0x2b, 0x6f, 0xcb, 0xf4, 0x3b, 0x50, 0x73, 0x4d, 0xa0, 0x3d, 0xb0,
+	0x6b, 0xb5, 0xca, 0xf8, 0x26, 0x53, 0x5d, 0xb0, 0x2e, 0x93, 0x40, 0x8b, 0x72, 0xd4, 0x79, 0x02,
+	0xfb, 0xf9, 0xef, 0xdc, 0x5b, 0xeb, 0x2f, 0x33, 0x65, 0x93, 0x5d, 0x41, 0xfb, 0x0d, 0x06, 0xa8,
+	0x71, 0xe7, 0xc5, 0xaa, 0x83, 0x34, 0x9b, 0x4b, 0xd5, 0x03, 0xbb, 0xe6, 0x5e, 0x59, 0x63, 0xdd,
+	0x6d, 0xba, 0x82, 0xf6, 0x00, 0xb9, 0x1c, 0x5d, 0xff, 0x1f, 0x47, 0x35, 0xf7, 0x3f, 0x38, 0x7a,
+	0x0b, 0x07, 0x43, 0xc9, 0xc7, 0x28, 0xd5, 0xce, 0x29, 0xb1, 0x17, 0x70, 0xd8, 0x70, 0x55, 0x1e,
+	0x36, 0x3a, 0xa9, 0xd7, 0xbd, 0xc9, 0x8c, 0x1a, 0xd3, 0x19, 0x35, 0x16, 0x33, 0x4a, 0xbe, 0x64,
+	0x94, 0x7c, 0xcb, 0x28, 0xf9, 0x9e, 0x51, 0x32, 0xc9, 0x28, 0xf9, 0x91, 0x51, 0xf2, 0x33, 0xa3,
+	0xc6, 0x22, 0xa3, 0xe4, 0xeb, 0x9c, 0x1a, 0x93, 0x39, 0x35, 0xa6, 0x73, 0x6a, 0x7c, 0xb8, 0x57,
+	0x3c, 0x3f, 0xdd, 0x5f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x57, 0x42, 0xfe, 0x0f, 0x8c, 0x04, 0x00,
+	0x00,
 }
 
-func (x Type) String() string {
-	s, ok := Type_name[int32(x)]
-	if ok {
-		return s
+func (this *NoSuchTreeError) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
 	}
-	return strconv.Itoa(int(x))
+
+	that1, ok := that.(*NoSuchTreeError)
+	if !ok {
+		that2, ok := that.(NoSuchTreeError)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Id != that1.Id {
+		return false
+	}
+	return true
+}
+func (this *InvalidTokenError) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*InvalidTokenError)
+	if !ok {
+		that2, ok := that.(InvalidTokenError)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Credentials.Equal(that1.Credentials) {
+		return false
+	}
+	return true
+}
+func (this *NoSuchKeyError) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*NoSuchKeyError)
+	if !ok {
+		that2, ok := that.(NoSuchKeyError)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	return true
+}
+func (this *KeyAlreadyExistsError) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*KeyAlreadyExistsError)
+	if !ok {
+		that2, ok := that.(KeyAlreadyExistsError)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Item.Equal(that1.Item) {
+		return false
+	}
+	return true
 }
 func (this *Credentials) Equal(that interface{}) bool {
 	if that == nil {
@@ -878,7 +1093,7 @@ func (this *InsertResponse) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Type != that1.Type {
+	if !this.Item.Equal(that1.Item) {
 		return false
 	}
 	return true
@@ -958,7 +1173,7 @@ func (this *DeleteResponse) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Type != that1.Type {
+	if !this.Item.Equal(that1.Item) {
 		return false
 	}
 	return true
@@ -1010,9 +1225,6 @@ func (this *SearchResponse) Equal(that interface{}) bool {
 		return false
 	}
 	if !this.Item.Equal(that1.Item) {
-		return false
-	}
-	if this.Type != that1.Type {
 		return false
 	}
 	return true
@@ -1068,10 +1280,51 @@ func (this *TraverseResponse) Equal(that interface{}) bool {
 			return false
 		}
 	}
-	if this.Type != that1.Type {
-		return false
-	}
 	return true
+}
+func (this *NoSuchTreeError) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.NoSuchTreeError{")
+	s = append(s, "Id: "+fmt.Sprintf("%#v", this.Id)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *InvalidTokenError) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.InvalidTokenError{")
+	if this.Credentials != nil {
+		s = append(s, "Credentials: "+fmt.Sprintf("%#v", this.Credentials)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *NoSuchKeyError) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.NoSuchKeyError{")
+	s = append(s, "Key: "+fmt.Sprintf("%#v", this.Key)+",\n")
+	s = append(s, "}")
+	return strings.Join(s, "")
+}
+func (this *KeyAlreadyExistsError) GoString() string {
+	if this == nil {
+		return "nil"
+	}
+	s := make([]string, 0, 5)
+	s = append(s, "&messages.KeyAlreadyExistsError{")
+	if this.Item != nil {
+		s = append(s, "Item: "+fmt.Sprintf("%#v", this.Item)+",\n")
+	}
+	s = append(s, "}")
+	return strings.Join(s, "")
 }
 func (this *Credentials) GoString() string {
 	if this == nil {
@@ -1138,7 +1391,9 @@ func (this *InsertResponse) GoString() string {
 	}
 	s := make([]string, 0, 5)
 	s = append(s, "&messages.InsertResponse{")
-	s = append(s, "Type: "+fmt.Sprintf("%#v", this.Type)+",\n")
+	if this.Item != nil {
+		s = append(s, "Item: "+fmt.Sprintf("%#v", this.Item)+",\n")
+	}
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -1173,7 +1428,9 @@ func (this *DeleteResponse) GoString() string {
 	}
 	s := make([]string, 0, 5)
 	s = append(s, "&messages.DeleteResponse{")
-	s = append(s, "Type: "+fmt.Sprintf("%#v", this.Type)+",\n")
+	if this.Item != nil {
+		s = append(s, "Item: "+fmt.Sprintf("%#v", this.Item)+",\n")
+	}
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -1194,12 +1451,11 @@ func (this *SearchResponse) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 6)
+	s := make([]string, 0, 5)
 	s = append(s, "&messages.SearchResponse{")
 	if this.Item != nil {
 		s = append(s, "Item: "+fmt.Sprintf("%#v", this.Item)+",\n")
 	}
-	s = append(s, "Type: "+fmt.Sprintf("%#v", this.Type)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -1219,12 +1475,11 @@ func (this *TraverseResponse) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 6)
+	s := make([]string, 0, 5)
 	s = append(s, "&messages.TraverseResponse{")
 	if this.Items != nil {
 		s = append(s, "Items: "+fmt.Sprintf("%#v", this.Items)+",\n")
 	}
-	s = append(s, "Type: "+fmt.Sprintf("%#v", this.Type)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -1236,6 +1491,108 @@ func valueToGoStringTree(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
+func (m *NoSuchTreeError) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *NoSuchTreeError) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Id != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Id))
+	}
+	return i, nil
+}
+
+func (m *InvalidTokenError) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InvalidTokenError) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
+		n1, err := m.Credentials.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n1
+	}
+	return i, nil
+}
+
+func (m *NoSuchKeyError) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *NoSuchKeyError) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Key != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Key))
+	}
+	return i, nil
+}
+
+func (m *KeyAlreadyExistsError) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *KeyAlreadyExistsError) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Item != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintTree(dAtA, i, uint64(m.Item.Size()))
+		n2, err := m.Item.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n2
+	}
+	return i, nil
+}
+
 func (m *Credentials) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1336,11 +1693,11 @@ func (m *CreateTreeResponse) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
-		n1, err1 := m.Credentials.MarshalTo(dAtA[i:])
-		if err1 != nil {
-			return 0, err1
+		n3, err := m.Credentials.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n1
+		i += n3
 	}
 	return i, nil
 }
@@ -1364,21 +1721,21 @@ func (m *InsertRequest) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
-		n2, err2 := m.Credentials.MarshalTo(dAtA[i:])
-		if err2 != nil {
-			return 0, err2
+		n4, err := m.Credentials.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n2
+		i += n4
 	}
 	if m.Item != nil {
 		dAtA[i] = 0x12
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Item.Size()))
-		n3, err3 := m.Item.MarshalTo(dAtA[i:])
-		if err3 != nil {
-			return 0, err3
+		n5, err := m.Item.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n3
+		i += n5
 	}
 	return i, nil
 }
@@ -1398,10 +1755,15 @@ func (m *InsertResponse) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Type != 0 {
-		dAtA[i] = 0x8
+	if m.Item != nil {
+		dAtA[i] = 0x12
 		i++
-		i = encodeVarintTree(dAtA, i, uint64(m.Type))
+		i = encodeVarintTree(dAtA, i, uint64(m.Item.Size()))
+		n6, err := m.Item.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n6
 	}
 	return i, nil
 }
@@ -1455,11 +1817,11 @@ func (m *DeleteRequest) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
-		n4, err4 := m.Credentials.MarshalTo(dAtA[i:])
-		if err4 != nil {
-			return 0, err4
+		n7, err := m.Credentials.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n4
+		i += n7
 	}
 	if m.Key != 0 {
 		dAtA[i] = 0x10
@@ -1484,10 +1846,15 @@ func (m *DeleteResponse) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Type != 0 {
-		dAtA[i] = 0x8
+	if m.Item != nil {
+		dAtA[i] = 0xa
 		i++
-		i = encodeVarintTree(dAtA, i, uint64(m.Type))
+		i = encodeVarintTree(dAtA, i, uint64(m.Item.Size()))
+		n8, err := m.Item.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n8
 	}
 	return i, nil
 }
@@ -1511,11 +1878,11 @@ func (m *SearchRequest) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
-		n5, err5 := m.Credentials.MarshalTo(dAtA[i:])
-		if err5 != nil {
-			return 0, err5
+		n9, err := m.Credentials.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n5
+		i += n9
 	}
 	if m.Key != 0 {
 		dAtA[i] = 0x10
@@ -1544,16 +1911,11 @@ func (m *SearchResponse) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Item.Size()))
-		n6, err6 := m.Item.MarshalTo(dAtA[i:])
-		if err6 != nil {
-			return 0, err6
+		n10, err := m.Item.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n6
-	}
-	if m.Type != 0 {
-		dAtA[i] = 0x10
-		i++
-		i = encodeVarintTree(dAtA, i, uint64(m.Type))
+		i += n10
 	}
 	return i, nil
 }
@@ -1577,11 +1939,11 @@ func (m *TraverseRequest) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintTree(dAtA, i, uint64(m.Credentials.Size()))
-		n7, err7 := m.Credentials.MarshalTo(dAtA[i:])
-		if err7 != nil {
-			return 0, err7
+		n11, err := m.Credentials.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
 		}
-		i += n7
+		i += n11
 	}
 	return i, nil
 }
@@ -1613,11 +1975,6 @@ func (m *TraverseResponse) MarshalTo(dAtA []byte) (int, error) {
 			i += n
 		}
 	}
-	if m.Type != 0 {
-		dAtA[i] = 0x10
-		i++
-		i = encodeVarintTree(dAtA, i, uint64(m.Type))
-	}
 	return i, nil
 }
 
@@ -1630,6 +1987,56 @@ func encodeVarintTree(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return offset + 1
 }
+func (m *NoSuchTreeError) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Id != 0 {
+		n += 1 + sovTree(uint64(m.Id))
+	}
+	return n
+}
+
+func (m *InvalidTokenError) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Credentials != nil {
+		l = m.Credentials.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	return n
+}
+
+func (m *NoSuchKeyError) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Key != 0 {
+		n += 1 + sovTree(uint64(m.Key))
+	}
+	return n
+}
+
+func (m *KeyAlreadyExistsError) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Item != nil {
+		l = m.Item.Size()
+		n += 1 + l + sovTree(uint64(l))
+	}
+	return n
+}
+
 func (m *Credentials) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1710,8 +2117,9 @@ func (m *InsertResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Type != 0 {
-		n += 1 + sovTree(uint64(m.Type))
+	if m.Item != nil {
+		l = m.Item.Size()
+		n += 1 + l + sovTree(uint64(l))
 	}
 	return n
 }
@@ -1753,8 +2161,9 @@ func (m *DeleteResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Type != 0 {
-		n += 1 + sovTree(uint64(m.Type))
+	if m.Item != nil {
+		l = m.Item.Size()
+		n += 1 + l + sovTree(uint64(l))
 	}
 	return n
 }
@@ -1785,9 +2194,6 @@ func (m *SearchResponse) Size() (n int) {
 		l = m.Item.Size()
 		n += 1 + l + sovTree(uint64(l))
 	}
-	if m.Type != 0 {
-		n += 1 + sovTree(uint64(m.Type))
-	}
 	return n
 }
 
@@ -1816,9 +2222,6 @@ func (m *TraverseResponse) Size() (n int) {
 			n += 1 + l + sovTree(uint64(l))
 		}
 	}
-	if m.Type != 0 {
-		n += 1 + sovTree(uint64(m.Type))
-	}
 	return n
 }
 
@@ -1834,6 +2237,46 @@ func sovTree(x uint64) (n int) {
 }
 func sozTree(x uint64) (n int) {
 	return sovTree(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (this *NoSuchTreeError) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NoSuchTreeError{`,
+		`Id:` + fmt.Sprintf("%v", this.Id) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *InvalidTokenError) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&InvalidTokenError{`,
+		`Credentials:` + strings.Replace(fmt.Sprintf("%v", this.Credentials), "Credentials", "Credentials", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NoSuchKeyError) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NoSuchKeyError{`,
+		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *KeyAlreadyExistsError) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&KeyAlreadyExistsError{`,
+		`Item:` + strings.Replace(fmt.Sprintf("%v", this.Item), "Item", "Item", 1) + `,`,
+		`}`,
+	}, "")
+	return s
 }
 func (this *Credentials) String() string {
 	if this == nil {
@@ -1872,7 +2315,7 @@ func (this *CreateTreeResponse) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&CreateTreeResponse{`,
-		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Credentials:` + strings.Replace(fmt.Sprintf("%v", this.Credentials), "Credentials", "Credentials", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1882,8 +2325,8 @@ func (this *InsertRequest) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&InsertRequest{`,
-		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
-		`Item:` + strings.Replace(this.Item.String(), "Item", "Item", 1) + `,`,
+		`Credentials:` + strings.Replace(fmt.Sprintf("%v", this.Credentials), "Credentials", "Credentials", 1) + `,`,
+		`Item:` + strings.Replace(fmt.Sprintf("%v", this.Item), "Item", "Item", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1893,7 +2336,7 @@ func (this *InsertResponse) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&InsertResponse{`,
-		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Item:` + strings.Replace(fmt.Sprintf("%v", this.Item), "Item", "Item", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1902,13 +2345,8 @@ func (this *MultiInsert) String() string {
 	if this == nil {
 		return "nil"
 	}
-	repeatedStringForItems := "[]*Item{"
-	for _, f := range this.Items {
-		repeatedStringForItems += strings.Replace(f.String(), "Item", "Item", 1) + ","
-	}
-	repeatedStringForItems += "}"
 	s := strings.Join([]string{`&MultiInsert{`,
-		`Items:` + repeatedStringForItems + `,`,
+		`Items:` + strings.Replace(fmt.Sprintf("%v", this.Items), "Item", "Item", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1918,7 +2356,7 @@ func (this *DeleteRequest) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&DeleteRequest{`,
-		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Credentials:` + strings.Replace(fmt.Sprintf("%v", this.Credentials), "Credentials", "Credentials", 1) + `,`,
 		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
 		`}`,
 	}, "")
@@ -1929,7 +2367,7 @@ func (this *DeleteResponse) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&DeleteResponse{`,
-		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Item:` + strings.Replace(fmt.Sprintf("%v", this.Item), "Item", "Item", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1939,7 +2377,7 @@ func (this *SearchRequest) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&SearchRequest{`,
-		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Credentials:` + strings.Replace(fmt.Sprintf("%v", this.Credentials), "Credentials", "Credentials", 1) + `,`,
 		`Key:` + fmt.Sprintf("%v", this.Key) + `,`,
 		`}`,
 	}, "")
@@ -1950,8 +2388,7 @@ func (this *SearchResponse) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&SearchResponse{`,
-		`Item:` + strings.Replace(this.Item.String(), "Item", "Item", 1) + `,`,
-		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Item:` + strings.Replace(fmt.Sprintf("%v", this.Item), "Item", "Item", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1961,7 +2398,7 @@ func (this *TraverseRequest) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&TraverseRequest{`,
-		`Credentials:` + strings.Replace(this.Credentials.String(), "Credentials", "Credentials", 1) + `,`,
+		`Credentials:` + strings.Replace(fmt.Sprintf("%v", this.Credentials), "Credentials", "Credentials", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1970,14 +2407,8 @@ func (this *TraverseResponse) String() string {
 	if this == nil {
 		return "nil"
 	}
-	repeatedStringForItems := "[]*Item{"
-	for _, f := range this.Items {
-		repeatedStringForItems += strings.Replace(f.String(), "Item", "Item", 1) + ","
-	}
-	repeatedStringForItems += "}"
 	s := strings.Join([]string{`&TraverseResponse{`,
-		`Items:` + repeatedStringForItems + `,`,
-		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Items:` + strings.Replace(fmt.Sprintf("%v", this.Items), "Item", "Item", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1989,6 +2420,328 @@ func valueToStringTree(v interface{}) string {
 	}
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("*%v", pv)
+}
+func (m *NoSuchTreeError) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NoSuchTreeError: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NoSuchTreeError: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InvalidTokenError) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InvalidTokenError: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InvalidTokenError: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Credentials", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Credentials == nil {
+				m.Credentials = &Credentials{}
+			}
+			if err := m.Credentials.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *NoSuchKeyError) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: NoSuchKeyError: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: NoSuchKeyError: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			m.Key = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Key |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *KeyAlreadyExistsError) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTree
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: KeyAlreadyExistsError: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: KeyAlreadyExistsError: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Item", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Item == nil {
+				m.Item = &Item{}
+			}
+			if err := m.Item.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTree(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTree
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *Credentials) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -2513,11 +3266,11 @@ func (m *InsertResponse) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: InsertResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Item", wireType)
 			}
-			m.Type = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTree
@@ -2527,11 +3280,28 @@ func (m *InsertResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Type |= Type(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Item == nil {
+				m.Item = &Item{}
+			}
+			if err := m.Item.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])
@@ -2781,10 +3551,10 @@ func (m *DeleteResponse) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Item", wireType)
 			}
-			m.Type = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTree
@@ -2794,11 +3564,28 @@ func (m *DeleteResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Type |= Type(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Item == nil {
+				m.Item = &Item{}
+			}
+			if err := m.Item.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])
@@ -2996,25 +3783,6 @@ func (m *SearchResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
-			}
-			m.Type = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTree
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Type |= Type(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])
@@ -3191,25 +3959,6 @@ func (m *TraverseResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
-			}
-			m.Type = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTree
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Type |= Type(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])
