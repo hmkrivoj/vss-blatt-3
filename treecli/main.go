@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"sync"
@@ -24,7 +24,13 @@ func handleCredentialsFromCliContext(c *cli.Context) {
 	}
 }
 
-func requestAndWait(context *actor.RootContext, wg *sync.WaitGroup, remotePid *actor.PID, pid *actor.PID, message interface{}) {
+func requestAndWait(
+	context *actor.RootContext,
+	wg *sync.WaitGroup,
+	remotePid *actor.PID,
+	pid *actor.PID,
+	message interface{},
+) {
 	wg.Add(1)
 	context.RequestWithCustomSender(remotePid, message, pid)
 	wg.Wait()
@@ -38,34 +44,34 @@ func (state *treeCliActor) Receive(c actor.Context) {
 	switch msg := c.Message().(type) {
 	case *messages.NoSuchTreeError:
 		c.Stop(c.Self())
-		fmt.Printf("No tree with id %d", msg.Id)
+		log.Printf("No tree with id %d", msg.Id)
 	case *messages.NoSuchKeyError:
 		c.Stop(c.Self())
-		fmt.Printf("Tree contains no key %d", msg.Key)
+		log.Printf("Tree contains no key %d", msg.Key)
 	case *messages.InvalidTokenError:
 		c.Stop(c.Self())
-		fmt.Printf("Invalid token %s for tree %d", msg.Credentials.Token, msg.Credentials.Id)
+		log.Printf("Invalid token %s for tree %d", msg.Credentials.Token, msg.Credentials.Id)
 	case *messages.KeyAlreadyExistsError:
 		c.Stop(c.Self())
-		fmt.Printf("Tree already contains item (%d, %s)", msg.Item.Key, msg.Item.Value)
+		log.Printf("Tree already contains item (%d, %s)", msg.Item.Key, msg.Item.Value)
 	case *messages.CreateTreeResponse:
 		c.Stop(c.Self())
-		fmt.Printf("id: %d, token: %s\n", msg.Credentials.Id, msg.Credentials.Token)
+		log.Printf("id: %d, token: %s", msg.Credentials.Id, msg.Credentials.Token)
 	case *messages.InsertResponse:
 		c.Stop(c.Self())
-		fmt.Printf("(%d, %s) successfully inserted\n", msg.Item.Key, msg.Item.Value)
+		log.Printf("(%d, %s) successfully inserted", msg.Item.Key, msg.Item.Value)
 	case *messages.SearchResponse:
 		c.Stop(c.Self())
-		fmt.Printf("Found item (%d, %s)\n", msg.Item.Key, msg.Item.Value)
+		log.Printf("Found item (%d, %s)", msg.Item.Key, msg.Item.Value)
 	case *messages.DeleteResponse:
 		c.Stop(c.Self())
-		fmt.Printf("Successfully deleted item (%d, %s) from tree\n", msg.Item.Key, msg.Item.Value)
+		log.Printf("Successfully deleted item (%d, %s) from tree", msg.Item.Key, msg.Item.Value)
 	case *messages.TraverseResponse:
 		for _, item := range msg.Items {
-			fmt.Printf("(%d, %s), ", item.Key, item.Value)
+			log.Printf("(%d, %s)", item.Key, item.Value)
 		}
 		c.Stop(c.Self())
-		fmt.Println()
+		log.Println()
 	case *actor.Stopped:
 		state.wg.Done()
 	}
