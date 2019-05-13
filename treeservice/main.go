@@ -86,6 +86,21 @@ func (state *treeServiceActor) Receive(context actor.Context) {
 		} else {
 			context.Forward(state.trees[msg.Credentials.Id])
 		}
+	case *messages.DeleteTreeRequest:
+		if _, exists := state.trees[msg.Credentials.Id]; !exists {
+			fmt.Printf("No such tree with id %d\n", msg.Credentials.Id)
+			context.Respond(&messages.NoSuchTreeError{Id: msg.Credentials.Id})
+			return
+		}
+		if state.tokens[msg.Credentials.Id] != msg.Credentials.Token {
+			fmt.Printf("Invalid credentials... treeservice denies access.\n")
+			context.Respond(&messages.InvalidTokenError{Credentials: msg.Credentials})
+		} else {
+			context.Poison(state.trees[msg.Credentials.Id])
+			delete(state.trees, msg.Credentials.Id)
+			delete(state.tokens, msg.Credentials.Id)
+			context.Respond(&messages.DeleteTreeResponse{Credentials: msg.Credentials})
+		}
 	}
 }
 

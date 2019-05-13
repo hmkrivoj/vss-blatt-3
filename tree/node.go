@@ -68,6 +68,9 @@ func (state *nodeActor) leaf(context actor.Context) {
 
 func (state *nodeActor) internalNode(context actor.Context) {
 	switch msg := context.Message().(type) {
+	case *actor.PoisonPill:
+		context.Poison(state.left)
+		context.Poison(state.right)
 	case *messages.InsertRequest:
 		if int(msg.Item.Key) > state.maxLeftSideKey {
 			log.Printf("%s forwards (%d, %s) to righthand child", context.Self().Id, msg.Item.Key, msg.Item.Value)
