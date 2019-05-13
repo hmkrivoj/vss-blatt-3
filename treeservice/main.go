@@ -119,7 +119,7 @@ func main() {
 	app.Email = "krivoj@hm.edu"
 	app.Version = "1.0.0"
 	app.Name = "treeservice"
-	app.Usage = "rpc service for managing search trees"
+	app.Usage = "proto.actor service for managing search trees"
 	app.UsageText = "treeservice [global options] command [arguments...]"
 
 	app.Flags = []cli.Flag{
