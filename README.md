@@ -1,32 +1,32 @@
 # Blatt 3
 ## Ausführen ohne Docker
--   Tree-Service starten
+-   Ins Verzeichnis des Tree-Services wechseln und ihn starten
     ```
-    treeservice -bind localhost:8090
+    go run main.go -bind localhost:8090
     ```
--   Baum erstellen mit Blättergröße 3
+-   In einem weiteren Terminal ins Verzeichnis des CLI wechseln und einen Baum erstellen mit Blattgröße 3
     ```
-    treecli -bind localhost:8091 -remote localhost:8090 create 3
+    go run main.go -bind localhost:8091 -remote localhost:8090 create 3
     ```
 -   Element (2, "zwei") einfügen
     ```
-    treecli -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 insert 2 zwei
+    go run main.go -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 insert 2 zwei
     ```
 -   Element mit Schlüssel 2 suchen
     ```
-    treecli -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 search 2
+    go run main.go -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 search 2
     ```
 -   Element mit Schlüssel 2 löschen
     ```
-    treecli -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 deleteitem 2
+    go run main.go -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 deleteitem 2
     ```
 -   Sortierte Elemente des Baumes ausgeben
     ```
-    treecli -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 traverse
+    go run main.go -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 traverse
     ```
 -   Baum löschen
     ```
-    treecli -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 deletetree
+    go run main.go -bind localhost:8091 -remote localhost:8090 -id 1 -token 421337 deletetree
     ```
 
 ## Ausführen mit Docker
