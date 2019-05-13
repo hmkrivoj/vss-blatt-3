@@ -91,20 +91,20 @@ func main() {
 	app.Email = "krivoj@hm.edu"
 	app.Version = "1.0.0"
 	app.Name = "treecli"
-	app.Usage = "communication with treeservice"
+	app.Usage = "proto.actor client for treeservice"
 	app.UsageText = "treecli [global options] command [arguments...]"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "bind",
 			Usage:       "address treecli should use",
-			Value:       "treecli.actors:8091",
+			Value:       "localhost:8091",
 			Destination: &bindAddr,
 		},
 		cli.StringFlag{
 			Name:        "remote",
 			Usage:       "address of the treeservice",
-			Value:       "treeservice.actors:8090",
+			Value:       "localhost:8090",
 			Destination: &remoteAddr,
 		},
 		cli.Int64Flag{
@@ -138,8 +138,11 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:      "create",
-			ArgsUsage: "[maxSize]",
+			Name:  "create",
+			Usage: "create a new search tree",
+			Description: "Create a new search tree with the specified maximum size for its leafs (default 2). " +
+				"Outputs id and token of the created tree",
+			ArgsUsage: "[maxSize=2]",
 			Action: func(c *cli.Context) {
 				maxSize, err := strconv.ParseInt(c.Args().First(), 10, 64)
 				if err != nil {
@@ -149,7 +152,12 @@ func main() {
 			},
 		},
 		{
-			Name:      "insert",
+			Name:  "insert",
+			Usage: "insert key-value pair into tree",
+			Description: "Inserts new key-value pair into specified tree. Outputs key-value pair on success. \n" +
+				"Fails if the specified tree doesn't exist or if an invalid token is provided.\n" +
+				"Also fails if the specified key already exists. " +
+				"In this case the existing key-value pair will be printed.",
 			ArgsUsage: "key value",
 			Action: func(c *cli.Context) {
 				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
@@ -173,6 +181,10 @@ func main() {
 		{
 			Name:      "search",
 			ArgsUsage: "key",
+			Usage:     "search value specified by key in tree",
+			Description: "Searches value specified by key in specified tree. Outputs key-value pair if found. \n" +
+				"Fails if the specified tree doesn't exist or if an invalid token is provided.\n" +
+				"Also fails if the specified key doesn't exist. ",
 			Action: func(c *cli.Context) {
 				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
 				if err != nil {
@@ -191,6 +203,11 @@ func main() {
 		{
 			Name:      "deleteitem",
 			ArgsUsage: "key",
+			Usage:     "delete key-value pair in tree",
+			Description: "Deletes key-value pair specified by key in specified tree. " +
+				"Outputs deleted key-value pair on success. \n" +
+				"Fails if the specified tree doesn't exist or if an invalid token is provided.\n" +
+				"Also fails if the specified key doesn't exist. ",
 			Action: func(c *cli.Context) {
 				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
 				if err != nil {
@@ -207,7 +224,10 @@ func main() {
 			},
 		},
 		{
-			Name: "traverse",
+			Name:  "traverse",
+			Usage: "get all key-value pairs sorted by key",
+			Description: "Gets all key-value pairs in specified tree sorted by keys. " +
+				"Fails if the specified tree doesn't exist or if an invalid token is provided.",
 			Action: func(c *cli.Context) {
 				assertCredentialsExist(c)
 				requestAndWait(rootContext, &wg, remotePid, pid, &messages.TraverseRequest{
@@ -219,7 +239,10 @@ func main() {
 			},
 		},
 		{
-			Name: "deletetree",
+			Name:  "deletetree",
+			Usage: "remove tree from treeservice",
+			Description: "Removes specified tree. Asks for confirmation by repeating the token.\n" +
+				"Fails if the specified tree doesn't exist or if an invalid token is provided.",
 			Action: func(c *cli.Context) {
 				assertCredentialsExist(c)
 				fmt.Printf("Repeat token to delete tree %d: ", c.GlobalInt64(globalFlagID))

@@ -114,11 +114,19 @@ func newTreeServiceActor() actor.Actor {
 
 func main() {
 	app := cli.NewApp()
+
+	app.Author = "Dimitri Krivoj"
+	app.Email = "krivoj@hm.edu"
+	app.Version = "1.0.0"
+	app.Name = "treeservice"
+	app.Usage = "rpc service for managing search trees"
+	app.UsageText = "treeservice [global options] command [arguments...]"
+
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "bind",
-			Usage: "the address treeservice shall bind to",
-			Value: "treeservice.actors:8090",
+			Usage: "the treeservice will listen on this address",
+			Value: "localhost:8090",
 		},
 	}
 	app.Action = func(c *cli.Context) error {
