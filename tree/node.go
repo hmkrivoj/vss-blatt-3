@@ -79,13 +79,15 @@ func (state *nodeActor) leaf(context actor.Context) {
 	case *messages.TraverseRequest:
 		log.Printf("Leaf %s responding with its sorted items", name)
 		context.Respond(&messages.TraverseResponse{Items: itemsSortedByKeys(state.content)})
+	case *actor.Stopping:
+		log.Printf("Leaf %s stopping", context.Self().Id)
 	}
 }
 
 func (state *nodeActor) internalNode(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case *actor.PoisonPill:
-		log.Printf("Internal node %s poisoned. Poisoning children.", context.Self().Id)
+	case *actor.Stopping:
+		log.Printf("Internal node %s stopping. Poisoning children", context.Self().Id)
 		context.Poison(state.left)
 		context.Poison(state.right)
 	case *messages.InsertRequest:
