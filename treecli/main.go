@@ -21,7 +21,7 @@ const globalFlagToken = "token"
 
 func assertCredentialsExist(c *cli.Context) {
 	if !c.GlobalIsSet(globalFlagID) || !c.GlobalIsSet(globalFlagToken) {
-		panic("Missing credentials.")
+		log.Panic("Missing credentials.")
 	}
 }
 
