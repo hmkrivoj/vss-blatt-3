@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -18,7 +19,7 @@ const timeout = 60 * time.Second
 const globalFlagID = "id"
 const globalFlagToken = "token"
 
-func handleCredentialsFromCliContext(c *cli.Context) {
+func assertCredentialsExist(c *cli.Context) {
 	if !c.GlobalIsSet(globalFlagID) || !c.GlobalIsSet(globalFlagToken) {
 		panic("Missing credentials.")
 	}
@@ -71,9 +72,11 @@ func (state *treeCliActor) Receive(c actor.Context) {
 			log.Printf("(%d, %s)", item.Key, item.Value)
 		}
 		c.Stop(c.Self())
-		log.Println()
 	case *actor.Stopped:
 		state.wg.Done()
+	case *messages.DeleteTreeResponse:
+		c.Stop(c.Self())
+		log.Printf("Successfully deleted tree %d", msg.Credentials.Id)
 	}
 }
 
@@ -154,7 +157,7 @@ func main() {
 					panic(err)
 				}
 				value := c.Args().Tail()[0]
-				handleCredentialsFromCliContext(c)
+				assertCredentialsExist(c)
 				requestAndWait(rootContext, &wg, remotePid, pid, &messages.InsertRequest{
 					Credentials: &messages.Credentials{
 						Token: c.GlobalString(globalFlagToken),
@@ -175,7 +178,7 @@ func main() {
 				if err != nil {
 					panic(err)
 				}
-				handleCredentialsFromCliContext(c)
+				assertCredentialsExist(c)
 				requestAndWait(rootContext, &wg, remotePid, pid, &messages.SearchRequest{
 					Credentials: &messages.Credentials{
 						Token: c.GlobalString(globalFlagToken),
@@ -186,14 +189,14 @@ func main() {
 			},
 		},
 		{
-			Name:      "delete",
+			Name:      "deleteitem",
 			ArgsUsage: "key",
 			Action: func(c *cli.Context) {
 				key, err := strconv.ParseInt(c.Args().First(), 10, 64)
 				if err != nil {
 					panic(err)
 				}
-				handleCredentialsFromCliContext(c)
+				assertCredentialsExist(c)
 				requestAndWait(rootContext, &wg, remotePid, pid, &messages.DeleteRequest{
 					Credentials: &messages.Credentials{
 						Token: c.GlobalString(globalFlagToken),
@@ -206,8 +209,27 @@ func main() {
 		{
 			Name: "traverse",
 			Action: func(c *cli.Context) {
-				handleCredentialsFromCliContext(c)
+				assertCredentialsExist(c)
 				requestAndWait(rootContext, &wg, remotePid, pid, &messages.TraverseRequest{
+					Credentials: &messages.Credentials{
+						Token: c.GlobalString(globalFlagToken),
+						Id:    c.GlobalInt64(globalFlagID),
+					},
+				})
+			},
+		},
+		{
+			Name: "deletetree",
+			Action: func(c *cli.Context) {
+				assertCredentialsExist(c)
+				fmt.Printf("Repeat token to delete tree %d: ", c.GlobalInt64(globalFlagID))
+				var token string
+				n, err := fmt.Scanf("%s", &token)
+				if n != 1 || err != nil || c.GlobalString(globalFlagToken) != token {
+					fmt.Printf("Token doesn't match flag - tree %d remains", c.GlobalInt64(globalFlagID))
+					return
+				}
+				requestAndWait(rootContext, &wg, remotePid, pid, &messages.DeleteTreeRequest{
 					Credentials: &messages.Credentials{
 						Token: c.GlobalString(globalFlagToken),
 						Id:    c.GlobalInt64(globalFlagID),

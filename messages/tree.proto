@@ -35,6 +35,14 @@ message CreateTreeResponse {
     Credentials credentials = 1;
 }
 
+message DeleteTreeRequest {
+    Credentials credentials = 1;
+}
+
+message DeleteTreeResponse {
+    Credentials credentials = 1;
+}
+
 message InsertRequest {
     Credentials credentials = 1;
     Item item = 2;
