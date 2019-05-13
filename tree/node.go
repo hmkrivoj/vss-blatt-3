@@ -98,18 +98,34 @@ func (state *nodeActor) internalNode(context actor.Context) {
 		}
 	case *messages.SearchRequest:
 		if int(msg.Key) > state.maxLeftSideKey {
-			log.Printf("Internal node %s forwards search request for key %d to righthand child (bigger than %d)", context.Self().Id, msg.Key, state.maxLeftSideKey)
+			log.Printf("Internal node %s forwards search request for key %d to righthand child (bigger than %d)",
+				context.Self().Id,
+				msg.Key,
+				state.maxLeftSideKey,
+			)
 			context.Forward(state.right)
 		} else {
-			log.Printf("Internal node %s forwards search request for key %d to lefthand child (equal or smaller than %d)", context.Self().Id, msg.Key, state.maxLeftSideKey)
+			log.Printf("Internal node %s forwards search request for key %d to lefthand child (equal or smaller than %d)",
+				context.Self().Id,
+				msg.Key,
+				state.maxLeftSideKey,
+			)
 			context.Forward(state.left)
 		}
 	case *messages.DeleteRequest:
 		if int(msg.Key) > state.maxLeftSideKey {
-			log.Printf("Internal node %s forwards delete request for key %d to righthand child (bigger than %d)", context.Self().Id, msg.Key, state.maxLeftSideKey)
+			log.Printf("Internal node %s forwards delete request for key %d to righthand child (bigger than %d)",
+				context.Self().Id,
+				msg.Key,
+				state.maxLeftSideKey,
+			)
 			context.Forward(state.right)
 		} else {
-			log.Printf("Internal node %s forwards delete request for key %d to lefthand child (equal or smaller than %d)", context.Self().Id, msg.Key, state.maxLeftSideKey)
+			log.Printf("Internal node %s forwards delete request for key %d to lefthand child (equal or smaller than %d)",
+				context.Self().Id,
+				msg.Key,
+				state.maxLeftSideKey,
+			)
 			context.Forward(state.left)
 		}
 	case *messages.TraverseRequest:
