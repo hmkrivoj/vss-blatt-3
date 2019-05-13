@@ -1,6 +1,18 @@
 syntax = "proto3";
 package messages;
 
+// Components for other Messages
+message Credentials {
+    int64 id = 1;
+    string token = 2;
+}
+
+message Item {
+    int64 key = 1;
+    string value = 2;
+}
+
+// Error messages
 message NoSuchTreeError {
     int64 id = 1;
 }
@@ -17,16 +29,7 @@ message KeyAlreadyExistsError {
     Item item = 1;
 }
 
-message Credentials {
-    int64 id = 1;
-    string token = 2;
-}
-
-message Item {
-    int64 key = 1;
-    string value = 2;
-}
-
+// Create tree
 message CreateTreeRequest {
     int64 maxSize = 1;
 }
@@ -35,6 +38,7 @@ message CreateTreeResponse {
     Credentials credentials = 1;
 }
 
+// Delete tree
 message DeleteTreeRequest {
     Credentials credentials = 1;
 }
@@ -43,6 +47,7 @@ message DeleteTreeResponse {
     Credentials credentials = 1;
 }
 
+// Insert into tree
 message InsertRequest {
     Credentials credentials = 1;
     Item item = 2;
@@ -52,10 +57,7 @@ message InsertResponse {
     Item item = 2;
 }
 
-message MultiInsert {
-    repeated Item items = 1;
-}
-
+// Delete from tree
 message DeleteRequest {
     Credentials credentials = 1;
     int64 key = 2;
@@ -65,6 +67,7 @@ message DeleteResponse {
     Item item = 1;
 }
 
+// Search in tree
 message SearchRequest {
     Credentials credentials = 1;
     int64 key = 2;
@@ -74,10 +77,16 @@ message SearchResponse {
     Item item = 1;
 }
 
+// Traverse tree
 message TraverseRequest {
     Credentials credentials = 1;
 }
 
 message TraverseResponse {
+    repeated Item items = 1;
+}
+
+// Helper message for splitting up node
+message MultiInsert {
     repeated Item items = 1;
 }
